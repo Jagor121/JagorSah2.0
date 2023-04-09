@@ -2,8 +2,11 @@ package org.openjfx;
 
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
+import javafx.geometry.Pos;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
+import javafx.scene.control.Button;
+import javafx.scene.layout.GridPane;
 import javafx.stage.Stage;
 
 import java.io.IOException;
@@ -17,8 +20,24 @@ public class App extends Application {
 
     @Override
     public void start(Stage stage) throws IOException {
-        scene = new Scene(loadFXML("primary"), 640, 480);
+        Button newGameButton = new Button("New Game");
+        newGameButton.setOnAction(event -> {
+            Chessboard chessboard = new Chessboard();
+            try {
+                chessboard.start(stage);
+            } catch (Exception e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }
+        });
+
+        GridPane grid = new GridPane();
+        grid.setAlignment(Pos.CENTER);
+        grid.add(newGameButton, 0, 0);
+
+        Scene scene = new Scene(grid, 200, 200); // Set the main menu scene size
         stage.setScene(scene);
+        stage.setTitle("Main Menu");
         stage.show();
     }
 
@@ -32,7 +51,7 @@ public class App extends Application {
     }
 
     public static void main(String[] args) {
-        launch();
+        launch(args);
     }
 
 }
