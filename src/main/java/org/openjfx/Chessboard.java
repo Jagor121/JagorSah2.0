@@ -3,6 +3,8 @@ package org.openjfx;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
+import org.openjfx.pieces.*;
+
 import javafx.application.Application;
 import javafx.geometry.Pos;
 import javafx.scene.Group;
@@ -16,20 +18,31 @@ import javafx.stage.Stage;
 
 public class Chessboard extends Application {
 
-    // public void pieceSetup(int row, int col, GridPane grid, Tile rect, boolean isWhite){
-    //     Path currentDirectory = Paths.get("").toAbsolutePath(); //relative paths do not like me so i had to do this arcane magic for it to work
-    //     // Piece piece = pieceSetupParser(row,col,isWhite);
-    //     GridPane.setHalignment(piece.imageView, javafx.geometry.HPos.CENTER);
-    //     GridPane.setValignment(piece.imageView, javafx.geometry.VPos.CENTER);
-    //     grid.add(piece.imageView, col, row);
-    //     rect.setHasPiece(true);
-    // }
+     public void pieceSetup(int size, GridPane grid, boolean isWhite, Group chessPieceLayer){
+         Path currentDirectory = Paths.get("").toAbsolutePath(); //relative paths do not like me so i had to do this arcane magic for it to work
+         String molimte = currentDirectory + "/src/main/java/res/images/pieces/blackrook.png";
+         for (int row = 0; row < size; row++) {
+            for (int col = 0; col < size; col++) {
 
-    // public Piece pieceSetupParser(int row, int col, boolean isWhite){
-    //     // Piece piece = new Piece(row, col, isWhite);
+                Piece piece = new Rook(molimte, "black");  // pieceSetupParser(row,col,isWhite);
+                chessPieceLayer.getChildren().add(piece.getImg());
+                GridPane.setConstraints(piece.getImg(), col, row);
+                grid.getChildren().add(piece.getImg());
+                
+                // GridPane.setHalignment(piece.getImg(), javafx.geometry.HPos.CENTER);
+                // GridPane.setValignment(piece.getImg(), javafx.geometry.VPos.CENTER);
+                // chessPieceLayer.getChildren().add(piece.getImg());
+                // chessPieceLayer.add(piece.getImg(), col, row);
 
-    //     return piece;
-    // }
+            }
+        }
+     }
+
+    //  public Piece pieceSetupParser(int row, int col, boolean isWhite){
+    //       Piece piece = new Piece(row, col, isWhite);
+
+    //      return piece;
+    //  }
 
     public void tileSetup(GridPane grid, int size, boolean tileColor){
         for (int row = 0; row < size; row++) {
@@ -57,12 +70,14 @@ public class Chessboard extends Application {
         Group chessPiecesLayer = new Group();
         
         tileSetup(grid, size, tileColor); // Create rectangles for each cell on the chessboard
+        grid.getChildren().add(chessPiecesLayer); // creates a new "layer for the pieces"... i think??... makes each grid tile part of the group chessPiecesLayer?
+        pieceSetup(size, grid,isWhite, chessPiecesLayer);
         
-        grid.getChildren().add(chessPiecesLayer); // creates a new "layer for the pieces"... i think??
+
 
         Scene scene = new Scene(grid, 480, 480); // Set the chessboard scene size
         primaryStage.setScene(scene);
-        primaryStage.setScene(scene);
+        
         primaryStage.setTitle("Chessboard");
         primaryStage.show();
     }
