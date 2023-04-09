@@ -2,9 +2,20 @@ package org.openjfx;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 
 import org.openjfx.pieces.*;
 
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
+import java.io.File;
+import java.io.IOException;
+import java.util.List;
+import java.io.FileReader;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 import javafx.application.Application;
 import javafx.geometry.Pos;
 import javafx.scene.Group;
@@ -17,32 +28,95 @@ import javafx.scene.shape.Rectangle;
 import javafx.stage.Stage;
 
 public class Chessboard extends Application {
-
-     public void pieceSetup(int size, GridPane grid, boolean isWhite, Group chessPieceLayer){
-         Path currentDirectory = Paths.get("").toAbsolutePath(); //relative paths do not like me so i had to do this arcane magic for it to work
-         String molimte = currentDirectory + "/src/main/java/res/images/pieces/blackrook.png";
+    
+    
+     public void pieceSetup(int size, GridPane grid, boolean isWhite, Group chessPieceLayer, Piece[][] currentPieces){
+        pieceSetupParser(isWhite, currentPieces);
+    
          for (int row = 0; row < size; row++) {
             for (int col = 0; col < size; col++) {
-
-                Piece piece = new Rook(molimte, "black");  // pieceSetupParser(row,col,isWhite);
-                chessPieceLayer.getChildren().add(piece.getImg());
-                GridPane.setConstraints(piece.getImg(), col, row);
-                grid.getChildren().add(piece.getImg());
                 
-                // GridPane.setHalignment(piece.getImg(), javafx.geometry.HPos.CENTER);
-                // GridPane.setValignment(piece.getImg(), javafx.geometry.VPos.CENTER);
-                // chessPieceLayer.getChildren().add(piece.getImg());
-                // chessPieceLayer.add(piece.getImg(), col, row);
-
+                try {
+                    chessPieceLayer.getChildren().add(currentPieces[row][col].getImg());
+                    GridPane.setConstraints(currentPieces[row][col].getImg(), col, row);
+                    grid.getChildren().add(currentPieces[row][col].getImg());
+                } catch (Exception e) {
+                    continue;
+                }
+                
+                
+    
             }
         }
      }
+     public static void rotate180(Piece[][] matrix) { // kopirano
+        int rows = matrix.length;
+        int cols = matrix[0].length;
 
-    //  public Piece pieceSetupParser(int row, int col, boolean isWhite){
-    //       Piece piece = new Piece(row, col, isWhite);
+        // Reverse rows
+        for (int i = 0; i < rows; i++) {
+            int left = 0;
+            int right = cols - 1;
+            while (left < right) {
+                Piece temp = matrix[i][left];
+                matrix[i][left] = matrix[i][right];
+                matrix[i][right] = temp;
+                left++;
+                right--;
+            }
+        }
 
-    //      return piece;
-    //  }
+        // Reverse columns
+        int top = 0;
+        int bottom = rows - 1;
+        while (top < bottom) {
+            for (int j = 0; j < cols; j++) {
+                Piece temp = matrix[top][j];
+                matrix[top][j] = matrix[bottom][j];
+                matrix[bottom][j] = temp;
+            }
+            top++;
+            bottom--;
+        }
+    }
+
+      public void pieceSetupParser(boolean isWhite, Piece[][] currentPieces){
+        // originalno sam imao cijelu kul ideju raditi ovo sa json-om ali to je absolutno propalo i unistilo moje mentalno stanje pa evo nas sad ovdje
+            currentPieces[0][0] = new Rook("blackrook.png","black");
+            currentPieces[0][1] = new Knight("blackknight.png","black");
+            currentPieces[0][2] = new Bishop("blackbishop.png","black");
+            currentPieces[0][3] = new Queen("blackqueen.png","black");
+            currentPieces[0][4] = new King("blackking.png","black");
+            currentPieces[0][5] = new Bishop("blackbishop.png","black");
+            currentPieces[0][6] = new Knight("blackknight.png","black");
+            currentPieces[0][7] = new Rook("blackrook.png","black");
+
+            for (int i = 0; i < 8; i++) {
+                currentPieces[1][i] = new Pawn("blackpawn.png","black");
+            }
+
+            currentPieces[7][0] = new Rook("whiterook.png","white");
+            currentPieces[7][1] = new Knight("whiteknight.png","white");
+            currentPieces[7][2] = new Bishop("whitebishop.png","white");
+            currentPieces[7][3] = new Queen("whitequeen.png","white");
+            currentPieces[7][4] = new King("whiteking.png","white");
+            currentPieces[7][5] = new Bishop("whitebishop.png","white");
+            currentPieces[7][6] = new Knight("whiteknight.png","white");
+            currentPieces[7][7] = new Rook("whiterook.png","white");
+
+            for (int i = 0; i < 8; i++) {
+                currentPieces[6][i] = new Pawn("whitepawn.png","white");
+            }
+
+            if(!isWhite){
+                //rotiraj currentPieces
+                rotate180(currentPieces);
+            }
+
+      }
+
+     
+      
 
     public void tileSetup(GridPane grid, int size, boolean tileColor){
         for (int row = 0; row < size; row++) {
@@ -68,10 +142,11 @@ public class Chessboard extends Application {
         boolean isWhite = true; // determines if you're playing as white or black/orientation of the board
         boolean tileColor = isWhite; //determines colors of the tiles
         Group chessPiecesLayer = new Group();
-        
+        Piece[][] currentPieces = new Piece[8][8]; // piece array logika
+
         tileSetup(grid, size, tileColor); // Create rectangles for each cell on the chessboard
         grid.getChildren().add(chessPiecesLayer); // creates a new "layer for the pieces"... i think??... makes each grid tile part of the group chessPiecesLayer?
-        pieceSetup(size, grid,isWhite, chessPiecesLayer);
+        pieceSetup(size, grid,isWhite, chessPiecesLayer, currentPieces);
         
 
 
