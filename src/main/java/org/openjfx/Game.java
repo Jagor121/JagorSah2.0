@@ -6,6 +6,7 @@ import javafx.application.Application;
 import javafx.scene.Group;
 import javafx.scene.Node;
 import javafx.scene.Scene;
+import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.GridPane;
 import javafx.stage.Stage;
@@ -32,14 +33,16 @@ public class Game{
         return false;  // ova metoda gleda svaki piece i "omogucuje" da bude samo jedan selektiran piece odjednom
     }
 
+    
     public void addPiece(Group chessPieceLayer, Piece selectedPiece, int row, int col, GridPane grid){
         chessPieceLayer.getChildren().add(selectedPiece.getImg());
         GridPane.setConstraints(selectedPiece.getImg(), col, row);
         grid.getChildren().add(selectedPiece.getImg());
     }
 
-    public void removePiece(){
-
+    public void removePiece(Group chessPieceLayer, Piece potentialDead, int row, int col, GridPane grid){
+        chessPieceLayer.getChildren().remove(potentialDead.getImg());
+        grid.getChildren().remove(potentialDead.getImg());
     }
 
     public void moveAction(Piece[][] currentPieces, GridPane grid, Node currentNode, Group chessPieceLayer){
@@ -60,8 +63,18 @@ public class Game{
         int desiredRow = GridPane.getRowIndex(currentNode);
         int desiredCol = GridPane.getColumnIndex(currentNode);
         Piece selectedPiece = currentPieces[currentRow][currentCol];
-
+        try {
+            Piece potentialDeadPiece = currentPieces[desiredRow][desiredCol];
+            currentPieces[desiredRow][desiredCol] = null;
+            removePiece(chessPieceLayer, potentialDeadPiece, desiredRow, desiredCol, grid); // jedenje protivnickih pieceova
+            
+        } catch (Exception e) {
+            System.out.println("sori nije uspjelo maknut");
+        }
+        
         addPiece(chessPieceLayer, selectedPiece, desiredRow, desiredCol, grid);
+        currentPieces[desiredRow][desiredCol] = selectedPiece;
+        currentPieces[currentRow][currentCol] = null;
         selectedPiece.setSelected(false);
         Chessboard.isWhite = !Chessboard.isWhite;
         System.out.println(Chessboard.isWhite);
@@ -71,9 +84,9 @@ public class Game{
 
     public void movementInitializer(Piece[][] currentPieces, Boolean isWhite, GridPane grid, Group chessPieceLayer){
         for (Node node : grid.getChildren()) {
-            node.setOnMouseClicked(event -> {
+            node.setOnMouseClicked(event2 -> {
                 if(!thisIsReallyStupid(currentPieces)){ // gleda dal ima selektirani piece
-                    Node currentNode = (Node) event.getSource();
+                    Node currentNode = (Node) event2.getSource();
                     moveAction(currentPieces, grid, currentNode, chessPieceLayer);
 
                 }
@@ -85,16 +98,21 @@ public class Game{
         for (Piece[] pieces : currentPieces) {
             for (Piece piece : pieces) {
                 try {
-                    piece.getImg().setOnMouseClicked(event -> {
+                    piece.getImg().setOnMouseClicked(event1 -> {
                         Boolean correctColor = (Chessboard.isWhite && piece.getColor().equals("white")) || (!Chessboard.isWhite && !piece.getColor().equals("white"));
                         if (!piece.getSelected() && thisIsReallyStupid(currentPieces) && correctColor) { // Check if a chess piece has not been selected yet
-                            ImageView selectedPieceIMG = (ImageView) event.getSource(); // Get the clicked chess piece
+                            ImageView selectedPieceIMG = (ImageView) event1.getSource(); // Get the clicked chess piece
                             
                             // Store the selected chess piece in a variable for later use
       
-                            System.out.println("test");
                             piece.setSelected(true); // Set the selected flag to true
                         }
+
+                        if (!thisIsReallyStupid(currentPieces) && !correctColor) { 
+                            Node node = (Node) event1.getSource();
+                            
+                           moveAction(currentPieces, grid, node, chessPieceLayer); 
+                         }
                     });
                 } catch (Exception e) {
                     continue;
