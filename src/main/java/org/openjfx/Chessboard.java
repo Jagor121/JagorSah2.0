@@ -28,7 +28,7 @@ import javafx.scene.shape.Rectangle;
 import javafx.stage.Stage;
 
 public class Chessboard extends Application {
-    
+    static boolean isWhite = true; // determines if you're playing as white or black/orientation of the board
     
      public void pieceSetup(int size, GridPane grid, boolean isWhite, Group chessPieceLayer, Piece[][] currentPieces){
         pieceSetupParser(isWhite, currentPieces);
@@ -137,7 +137,7 @@ public class Chessboard extends Application {
     public void start(Stage primaryStage) throws Exception {
         GridPane grid = new GridPane();
         int size = 8; // size of the chessboard
-        boolean isWhite = true; // determines if you're playing as white or black/orientation of the board
+        
         boolean tileColor = isWhite; //determines colors of the tiles
         Group chessPiecesLayer = new Group();
         Piece[][] currentPieces = new Piece[8][8]; // piece array logika
@@ -155,7 +155,7 @@ public class Chessboard extends Application {
         primaryStage.show();
         
         Game game = new Game();
-        game.Logic(grid, chessPiecesLayer, currentPieces, primaryStage, scene, isWhite); // bog zna zasto ovo ovako radim ali tako sam odlucio
+        game.Logic(grid, chessPiecesLayer, currentPieces, primaryStage, scene); // bog zna zasto ovo ovako radim ali tako sam odlucio
 
 
         // for (int i = 0; i < currentPieces.length; i++) {

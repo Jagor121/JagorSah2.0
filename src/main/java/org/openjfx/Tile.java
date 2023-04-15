@@ -1,6 +1,6 @@
 package org.openjfx;
 
-public class Tile extends javafx.scene.shape.Rectangle {
+public class Tile extends javafx.scene.shape.Rectangle { //this class has no point but i'm keeping it here in case it becomes useful
     private int row;
     private int col;
     private Boolean hasPiece;
