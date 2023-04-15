@@ -33,6 +33,20 @@ public class Game{
         return false;  // ova metoda gleda svaki piece i "omogucuje" da bude samo jedan selektiran piece odjednom
     }
 
+    public void thisIsAlsoReallyStupid(Piece[][] currentPieces){
+        for (Piece[] pieces : currentPieces) {
+            for (Piece piece : pieces) {
+                try {
+                    if(piece.getSelected()){
+                        piece.setSelected(false);
+                    }
+                } catch (Exception e) {
+                    continue;
+                }
+            }
+        }
+    }
+
     
     public void addPiece(Group chessPieceLayer, Piece selectedPiece, int row, int col, GridPane grid){
         chessPieceLayer.getChildren().add(selectedPiece.getImg());
@@ -69,7 +83,7 @@ public class Game{
             removePiece(chessPieceLayer, potentialDeadPiece, desiredRow, desiredCol, grid); // jedenje protivnickih pieceova
             
         } catch (Exception e) {
-            System.out.println("sori nije uspjelo maknut");
+            System.out.println("nisi pojeo nista");
         }
         
         addPiece(chessPieceLayer, selectedPiece, desiredRow, desiredCol, grid);
@@ -106,6 +120,9 @@ public class Game{
                             // Store the selected chess piece in a variable for later use
       
                             piece.setSelected(true); // Set the selected flag to true
+                        } else if(!thisIsReallyStupid(currentPieces) && correctColor && !piece.getSelected()) {
+                            thisIsAlsoReallyStupid(currentPieces);
+                            piece.setSelected(true);
                         }
 
                         if (!thisIsReallyStupid(currentPieces) && !correctColor) { 
