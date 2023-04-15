@@ -23,6 +23,7 @@ public class App extends Application {
     @Override
     public void start(Stage stage) throws IOException {
         Button newGameButton = new Button("New Game");
+        
         newGameButton.setOnAction(event -> {
             Chessboard chessboard = new Chessboard();
             try {
@@ -30,6 +31,7 @@ public class App extends Application {
             } catch (Exception e) {
                 // TODO Auto-generated catch block
                 e.printStackTrace();
+                System.out.println("bravo glupane");
             }
         });
 

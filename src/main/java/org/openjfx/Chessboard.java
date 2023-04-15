@@ -42,14 +42,12 @@ public class Chessboard extends Application {
                     grid.getChildren().add(currentPieces[row][col].getImg());
                 } catch (Exception e) {
                     continue;
-                }
-                
-                
+                }    
     
             }
         }
      }
-     public static void rotate180(Piece[][] matrix) { // kopirano
+     public static void rotate180(Piece[][] matrix) { // stavi u game.java kasnije molim te tako da rotira board i pieces
         int rows = matrix.length;
         int cols = matrix[0].length;
 
@@ -81,7 +79,7 @@ public class Chessboard extends Application {
     }
 
       public void pieceSetupParser(boolean isWhite, Piece[][] currentPieces){
-        // originalno sam imao cijelu kul ideju raditi ovo sa json-om ali to je absolutno propalo i unistilo moje mentalno stanje pa evo nas sad ovdje
+        // originalno sam imao cijelu kul ideju raditi ovo sa json-om ali to je apsolutno propalo i unistilo moje mentalno stanje pa evo nas sad ovdje
             currentPieces[0][0] = new Rook("blackrook.png","black");
             currentPieces[0][1] = new Knight("blackknight.png","black");
             currentPieces[0][2] = new Bishop("blackbishop.png","black");
@@ -138,7 +136,7 @@ public class Chessboard extends Application {
     @Override
     public void start(Stage primaryStage) throws Exception {
         GridPane grid = new GridPane();
-        int size = 8; // Size of the chessboard
+        int size = 8; // size of the chessboard
         boolean isWhite = true; // determines if you're playing as white or black/orientation of the board
         boolean tileColor = isWhite; //determines colors of the tiles
         Group chessPiecesLayer = new Group();
@@ -155,6 +153,18 @@ public class Chessboard extends Application {
         
         primaryStage.setTitle("Chessboard");
         primaryStage.show();
+        
+        Game game = new Game();
+        game.Logic(grid, chessPiecesLayer, currentPieces, primaryStage, scene, isWhite); // bog zna zasto ovo ovako radim ali tako sam odlucio
+
+
+        // for (int i = 0; i < currentPieces.length; i++) {
+        //     for (int j = 0; j < currentPieces.length; j++) {
+        //         System.out.print(currentPieces[i][j]);
+        //     }
+        //     System.out.println();
+        // }
+
     }
 
     public static void main(String[] args) {

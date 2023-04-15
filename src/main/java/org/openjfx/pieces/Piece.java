@@ -8,7 +8,7 @@ import javafx.scene.image.ImageView;
 public abstract class Piece {
     ImageView imageView = new ImageView();
     String color;
-
+    Boolean selected;
 
     public Piece(String pathToImg, String color){
         Path currentDirectory = Paths.get("").toAbsolutePath(); //relative paths do not like me so i had to do this arcane magic for it to work
@@ -18,8 +18,10 @@ public abstract class Piece {
         imageView.setImage(image);
         imageView.setFitWidth(60); // Example width
         imageView.setFitHeight(60); // Example height
-
+        imageView.setPickOnBounds(true);
+        
         this.color = color;
+        selected = false;
     }
 
     abstract void Move();
@@ -32,4 +34,11 @@ public abstract class Piece {
         return color;
     }
 
+    public Boolean getSelected(){
+        return selected;
+    }
+
+    public void setSelected(Boolean selected){
+        this.selected = selected;
+    }
 }
