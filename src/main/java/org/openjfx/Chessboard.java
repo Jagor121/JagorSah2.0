@@ -93,7 +93,7 @@ public class Chessboard extends Application {
             currentPieces[0][4] = new King("blackking.png","black");
             currentPieces[0][5] = new Bishop("blackbishop.png","black");
             currentPieces[0][6] = new Knight("blackknight.png","black");
-            currentPieces[0][7] = new Rook("blackrook.png","black");
+            currentPieces[0][7] = new Rock("blackrock.png","black");
 
             for (int i = 0; i < 8; i++) {
                 currentPieces[1][i] = new Pawn("blackpawn.png","black");
@@ -106,7 +106,7 @@ public class Chessboard extends Application {
             currentPieces[7][4] = new King("whiteking.png","white");
             currentPieces[7][5] = new Bishop("whitebishop.png","white");
             currentPieces[7][6] = new Knight("whiteknight.png","white");
-            currentPieces[7][7] = new Rook("whiterook.png","white");
+            currentPieces[7][7] = new Rock("whiterock.png","white");
 
             for (int i = 0; i < 8; i++) {
                 currentPieces[6][i] = new Pawn("whitepawn.png","white");
