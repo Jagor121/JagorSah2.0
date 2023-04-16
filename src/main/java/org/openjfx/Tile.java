@@ -9,6 +9,9 @@ public class Tile extends javafx.scene.shape.Rectangle { //this class has no poi
         super(width, height);
         hasPiece = false;
     }
+    public Tile(){
+        
+    }
 
     public void setPosition(int row, int col) {
         this.row = row;

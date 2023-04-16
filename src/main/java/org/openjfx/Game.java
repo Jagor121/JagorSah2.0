@@ -9,6 +9,7 @@ import javafx.scene.Scene;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.GridPane;
+import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 
 public class Game{
@@ -60,6 +61,7 @@ public class Game{
     }
 
     public void moveAction(Piece[][] currentPieces, GridPane grid, Node currentNode, Group chessPieceLayer){
+        
         int currentRow = 0, currentCol = 0;
         for (int i = 0; i < currentPieces.length; i++) {
             for (int j = 0; j < currentPieces[i].length; j++) {
@@ -89,20 +91,110 @@ public class Game{
         addPiece(chessPieceLayer, selectedPiece, desiredRow, desiredCol, grid);
         currentPieces[desiredRow][desiredCol] = selectedPiece;
         currentPieces[currentRow][currentCol] = null;
+
+        recentMoveShowReset(grid);
+        Tile tile = currentPieceTileLocator(grid, currentPieces);
+        Color color = (Color) tile.getFill();
+        Boolean colorType = color.equals(Color.web(Chessboard.tileColor1));
+        colorChanger(colorType, tile);
+        
         selectedPiece.setSelected(false);
         Chessboard.isWhite = !Chessboard.isWhite;
-        System.out.println(Chessboard.isWhite);
     }
-    
 
+    public void colorChanger(Boolean colorType, Tile tile){
+        try {
+            if(colorType){
+                tile.setFill(Color.web(Chessboard.tileColor1Ac));
+            }else{
+                tile.setFill(Color.web(Chessboard.tileColor2Ac));
+            }
+        } catch (Exception e) {
+            // TODO: handle exception
+        }
 
-    public void movementInitializer(Piece[][] currentPieces, Boolean isWhite, GridPane grid, Group chessPieceLayer){
+    }
+
+    public void colorRevert(Boolean colorType, Tile tile){
+        try {
+            if(colorType){
+                tile.setFill(Color.web(Chessboard.tileColor1));
+            }else{
+                tile.setFill(Color.web(Chessboard.tileColor2));
+            }
+        } catch (Exception e) {
+            // TODO: handle exception
+        }
+
+    }
+
+   
+    public Tile currentPieceTileLocator(GridPane grid, Piece[][] currentPieces){ // jako inefficient ali sta se moze
+        int col = 0;
+        int row = 0;
+        Tile tile = new Tile();
+        for (int i = 0; i < currentPieces.length; i++) {
+            for (int j = 0; j < currentPieces[i].length; j++) {
+                try {
+                    if (currentPieces[i][j].getSelected()) {
+                        row = i;
+                        col = j;
+                    }
+                } catch (Exception e) {
+
+                    continue;
+                }
+            }
+        }
+        for (Node node : grid.getChildren()) { // uzasno odvratno trosi processing time
+            if (node instanceof Tile && GridPane.getRowIndex(node) == row && GridPane.getColumnIndex(node) == col) {
+                tile = (Tile) node;
+            }
+        }
+ 
+      return tile;
+    }
+
+    public void recentMoveShowReset(GridPane grid){
+        int count = 0;
+        Boolean tileColor = Chessboard.tileColor;
+        for (Node Node : grid.getChildren()) { // ovaj loop cleara cijeli board od recent move indikatora
+            if (Node instanceof Tile){
+                Tile tile1 = (Tile) Node;
+                if (tileColor) {
+                    tile1.setFill(Color.web(Chessboard.tileColor1));
+                } else if (!tileColor){
+                    tile1.setFill(Color.web(Chessboard.tileColor2)); 
+                }
+                count++;
+                tileColor = !tileColor; // Toggle the flag for the next cell 
+                if(count % 8 == 0){
+                    tileColor = !tileColor;
+                }
+            }
+        }
+    }
+
+    public void recentMove(Tile tile, GridPane grid){
+        Color color = (Color) tile.getFill();
+        Boolean colorType = color.equals(Color.web(Chessboard.tileColor1));
+        recentMoveShowReset(grid);
+        
+
+        colorChanger(colorType, tile); // metoda za mijenjanje individualnog tilea
+    }
+
+    public void movementHandler(Piece[][] currentPieces, Boolean isWhite, GridPane grid, Group chessPieceLayer){
         for (Node node : grid.getChildren()) {
             node.setOnMouseClicked(event2 -> {
                 if(!thisIsReallyStupid(currentPieces)){ // gleda dal ima selektirani piece
                     Node currentNode = (Node) event2.getSource();
+                    Tile tile = (Tile) event2.getSource();
+                    
+                    recentMove(tile, grid);
+                    
                     moveAction(currentPieces, grid, currentNode, chessPieceLayer);
-
+                    
                 }
 
             });
@@ -116,21 +208,54 @@ public class Game{
                         Boolean correctColor = (Chessboard.isWhite && piece.getColor().equals("white")) || (!Chessboard.isWhite && !piece.getColor().equals("white"));
                         if (!piece.getSelected() && thisIsReallyStupid(currentPieces) && correctColor) { // Check if a chess piece has not been selected yet
                             ImageView selectedPieceIMG = (ImageView) event1.getSource(); // Get the clicked chess piece
-                            
-                            // Store the selected chess piece in a variable for later use
+               
       
                             piece.setSelected(true); // Set the selected flag to true
-                        } else if(!thisIsReallyStupid(currentPieces) && correctColor && !piece.getSelected()) {
+                            Tile tile = currentPieceTileLocator(grid, currentPieces);
+                            Color color = (Color) tile.getFill();
+                            Boolean colorType = color.equals(Color.web(Chessboard.tileColor1));
+                            colorChanger(colorType, tile);
+                            
+                        } else if(!thisIsReallyStupid(currentPieces) && correctColor && !piece.getSelected()) { // selektiranje drugog piecea
+                            
+                            Tile tile = currentPieceTileLocator(grid, currentPieces);
+                            Color color = (Color) tile.getFill();
+                            Boolean colorType = color.equals(Color.web(Chessboard.tileColor1Ac));
+                            colorRevert(colorType, tile);
+
                             thisIsAlsoReallyStupid(currentPieces);
                             piece.setSelected(true);
+                            tile = currentPieceTileLocator(grid, currentPieces);
+                            color = (Color) tile.getFill();
+                            colorType = color.equals(Color.web(Chessboard.tileColor1));
+                            colorChanger(colorType, tile);
                         }
 
-                        if (!thisIsReallyStupid(currentPieces) && !correctColor) { 
+                        if (!thisIsReallyStupid(currentPieces) && !correctColor) { // jedenje
                             Node node = (Node) event1.getSource();
-                            
+
                            moveAction(currentPieces, grid, node, chessPieceLayer); 
+                           
                          }
                     });
+
+                    piece.getImg().setOnMouseEntered(event -> {
+                        Boolean correctColor = (Chessboard.isWhite && piece.getColor().equals("white")) || (!Chessboard.isWhite && !piece.getColor().equals("white"));
+                        // Change cursor to hand cursor when mouse is over the ImageView
+                        if(correctColor){
+                            piece.getImg().setCursor(javafx.scene.Cursor.HAND);
+                        }
+                    });
+            
+                    piece.getImg().setOnMouseExited(event -> {
+                        Boolean correctColor = (Chessboard.isWhite && piece.getColor().equals("white")) || (!Chessboard.isWhite && !piece.getColor().equals("white"));
+                        // Reset cursor to default when mouse exits the ImageView
+                        if (correctColor) {
+                            piece.getImg().setCursor(javafx.scene.Cursor.DEFAULT);
+                        }
+  
+                    });
+
                 } catch (Exception e) {
                     continue;
                 }
@@ -143,7 +268,7 @@ public class Game{
 
     public void Logic(GridPane grid, Group chessPiecesLayer, Piece[][] currentPieces, Stage primaryStage, Scene scene) {
 
-        movementInitializer(currentPieces, Chessboard.isWhite, grid, chessPiecesLayer); // initializes piece movement/selection capabilites
+        movementHandler(currentPieces, Chessboard.isWhite, grid, chessPiecesLayer); // initializes piece movement/selection capabilites
 
     }
 }

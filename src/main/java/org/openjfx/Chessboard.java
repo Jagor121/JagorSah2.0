@@ -29,7 +29,13 @@ import javafx.stage.Stage;
 
 public class Chessboard extends Application {
     static boolean isWhite = true; // determines if you're playing as white or black/orientation of the board
-    
+    static boolean tileColor = isWhite; //determines colors of the tiles
+    static int size = 8;
+    static String tileColor1 = "#f0d9b5";
+    static String tileColor2 = "#b58863";
+    static String tileColor1Ac = "#f7ec59";
+    static String tileColor2Ac = "#dac331";
+
      public void pieceSetup(int size, GridPane grid, boolean isWhite, Group chessPieceLayer, Piece[][] currentPieces){
         pieceSetupParser(isWhite, currentPieces);
     
@@ -120,7 +126,7 @@ public class Chessboard extends Application {
         for (int row = 0; row < size; row++) {
             for (int col = 0; col < size; col++) {
                 Tile rect = new Tile(60, 60); // Each cell is 60x60 pixels
-                rect.setFill(tileColor ? Color.web("#f0d9b5") : Color.web("#b58863"));
+                rect.setFill(tileColor ? Color.web(tileColor1) : Color.web(tileColor2));
                 grid.add(rect, col, row);
 
                 // pieceSetup(row, col, grid, rect, isWhite);
@@ -136,9 +142,8 @@ public class Chessboard extends Application {
     @Override
     public void start(Stage primaryStage) throws Exception {
         GridPane grid = new GridPane();
-        int size = 8; // size of the chessboard
         
-        boolean tileColor = isWhite; //determines colors of the tiles
+        
         Group chessPiecesLayer = new Group();
         Piece[][] currentPieces = new Piece[8][8]; // piece array logika
 
