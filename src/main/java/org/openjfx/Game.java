@@ -1,7 +1,9 @@
 package org.openjfx;
 
+
 import org.openjfx.pieces.Piece;
 
+import javafx.animation.PauseTransition;
 import javafx.application.Application;
 import javafx.scene.Group;
 import javafx.scene.Node;
@@ -11,11 +13,12 @@ import javafx.scene.image.ImageView;
 import javafx.scene.layout.GridPane;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
+import javafx.util.Duration;
 
 public class Game{
 
     public Boolean thisIsReallyStupid(Piece[][] currentPieces){ // this is so unimaginably stupid i hope to god nobody sees this
-        int selected = 0;
+        int selected = 0;  // ova metoda gleda svaki piece i "omogucuje" da bude samo jedan selektiran piece odjednom
         for (Piece[] pieces : currentPieces) {
             for (Piece piece : pieces) {
                 try {
@@ -31,11 +34,11 @@ public class Game{
         if(selected == 0){
             return true;
         }
-        return false;  // ova metoda gleda svaki piece i "omogucuje" da bude samo jedan selektiran piece odjednom
+        return false; 
     }
 
-    public void thisIsAlsoReallyStupid(Piece[][] currentPieces){
-        for (Piece[] pieces : currentPieces) {
+    public void thisIsAlsoReallyStupid(Piece[][] currentPieces){ // ova metoda gleda kroz svaki piece i kada nade selektirani promijeni selected varijablu u false
+        for (Piece[] pieces : currentPieces) {              // vrlo optimiziran kod, ja sam siguran da 5% cpu usagea je jako malo za sah sigurno aha
             for (Piece piece : pieces) {
                 try {
                     if(piece.getSelected()){
@@ -97,7 +100,7 @@ public class Game{
         Color color = (Color) tile.getFill();
         Boolean colorType = color.equals(Color.web(Chessboard.tileColor1));
         colorChanger(colorType, tile);
-        
+
         selectedPiece.setSelected(false);
         Chessboard.isWhite = !Chessboard.isWhite;
     }
@@ -184,6 +187,15 @@ public class Game{
         colorChanger(colorType, tile); // metoda za mijenjanje individualnog tilea
     }
 
+    public void pause(int millis){
+        PauseTransition pause = new PauseTransition(Duration.millis(millis));
+                        pause.setOnFinished(e -> {
+                        System.out.println("Action after delay");
+                        });
+                        pause.play();
+
+    }
+
     public void movementHandler(Piece[][] currentPieces, Boolean isWhite, GridPane grid, Group chessPieceLayer){
         for (Node node : grid.getChildren()) {
             node.setOnMouseClicked(event2 -> {
@@ -194,7 +206,8 @@ public class Game{
                     recentMove(tile, grid);
                     
                     moveAction(currentPieces, grid, currentNode, chessPieceLayer);
-                    
+                    pause(16);
+                        
                 }
 
             });
@@ -215,7 +228,8 @@ public class Game{
                             Color color = (Color) tile.getFill();
                             Boolean colorType = color.equals(Color.web(Chessboard.tileColor1));
                             colorChanger(colorType, tile);
-                            
+                            pause(16);
+
                         } else if(!thisIsReallyStupid(currentPieces) && correctColor && !piece.getSelected()) { // selektiranje drugog piecea
                             
                             Tile tile = currentPieceTileLocator(grid, currentPieces);
@@ -229,13 +243,14 @@ public class Game{
                             color = (Color) tile.getFill();
                             colorType = color.equals(Color.web(Chessboard.tileColor1));
                             colorChanger(colorType, tile);
+                            pause(16);
                         }
 
                         if (!thisIsReallyStupid(currentPieces) && !correctColor) { // jedenje
                             Node node = (Node) event1.getSource();
 
                            moveAction(currentPieces, grid, node, chessPieceLayer); 
-                           
+                           pause(16);
                          }
                     });
 
