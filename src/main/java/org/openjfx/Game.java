@@ -1,7 +1,13 @@
 package org.openjfx;
 
 
+import org.openjfx.pieces.Bishop;
+import org.openjfx.pieces.King;
+import org.openjfx.pieces.Knight;
+import org.openjfx.pieces.Pawn;
 import org.openjfx.pieces.Piece;
+import org.openjfx.pieces.Queen;
+import org.openjfx.pieces.Rook;
 
 import javafx.animation.PauseTransition;
 import javafx.application.Application;
@@ -38,7 +44,7 @@ public class Game{
     }
 
     public void thisIsAlsoReallyStupid(Piece[][] currentPieces){ // ova metoda gleda kroz svaki piece i kada nade selektirani promijeni selected varijablu u false
-        for (Piece[] pieces : currentPieces) {              // vrlo optimiziran kod, ja sam siguran da 5% cpu usagea je jako malo za sah sigurno aha
+        for (Piece[] pieces : currentPieces) {              // vrlo optimiziran kod, ja sam siguran da cu bit bas dobar programer u buducnosti
             for (Piece piece : pieces) {
                 try {
                     if(piece.getSelected()){
@@ -63,8 +69,11 @@ public class Game{
         grid.getChildren().remove(potentialDead.getImg());
     }
 
-    public void moveAction(Piece[][] currentPieces, GridPane grid, Node currentNode, Group chessPieceLayer){
-        
+    public Boolean moveAction(Piece[][] currentPieces, GridPane grid, Node currentNode, Group chessPieceLayer){
+                
+        int desiredRow = GridPane.getRowIndex(currentNode);
+        int desiredCol = GridPane.getColumnIndex(currentNode);
+        Boolean validMove = false;
         int currentRow = 0, currentCol = 0;
         for (int i = 0; i < currentPieces.length; i++) {
             for (int j = 0; j < currentPieces[i].length; j++) {
@@ -72,6 +81,27 @@ public class Game{
                     if(currentPieces[i][j].getSelected()){
                         currentRow = i;
                         currentCol = j;
+                        if (currentPieces[i][j] instanceof Pawn) {   // god forgive me
+                            Pawn selectedPiece = (Pawn) currentPieces[currentRow][currentCol];
+                            validMove = selectedPiece.Move(selectedPiece, currentPieces, currentRow, currentCol, desiredRow, desiredCol);
+                        } else if (currentPieces[i][j] instanceof Rook) {
+                            Rook selectedPiece = (Rook) currentPieces[currentRow][currentCol];
+                            validMove = selectedPiece.Move(selectedPiece, currentPieces, currentRow, currentCol, desiredRow, desiredCol);
+                        } else if (currentPieces[i][j] instanceof Knight) {
+                            Knight selectedPiece = (Knight) currentPieces[currentRow][currentCol];
+                            validMove = selectedPiece.Move(selectedPiece, currentPieces, currentRow, currentCol, desiredRow, desiredCol);
+                        } else if (currentPieces[i][j] instanceof Bishop) {
+                            Bishop selectedPiece = (Bishop) currentPieces[currentRow][currentCol];
+                            validMove = selectedPiece.Move(selectedPiece, currentPieces, currentRow, currentCol, desiredRow, desiredCol);
+                        } else if (currentPieces[i][j] instanceof Queen) {
+                            Queen selectedPiece = (Queen) currentPieces[currentRow][currentCol];
+                            validMove = selectedPiece.Move(selectedPiece, currentPieces, currentRow, currentCol, desiredRow, desiredCol);
+                        } else if (currentPieces[i][j] instanceof King) {
+                            King selectedPiece = (King) currentPieces[currentRow][currentCol];
+                            validMove = selectedPiece.Move(selectedPiece, currentPieces, currentRow, currentCol, desiredRow, desiredCol);
+                        } 
+
+
                     }
                 } catch (Exception e) {
                     continue;
@@ -79,30 +109,45 @@ public class Game{
             }
         }
         
-        int desiredRow = GridPane.getRowIndex(currentNode);
-        int desiredCol = GridPane.getColumnIndex(currentNode);
         Piece selectedPiece = currentPieces[currentRow][currentCol];
         try {
-            Piece potentialDeadPiece = currentPieces[desiredRow][desiredCol];
-            currentPieces[desiredRow][desiredCol] = null;
-            removePiece(chessPieceLayer, potentialDeadPiece, desiredRow, desiredCol, grid); // jedenje protivnickih pieceova
             
-        } catch (Exception e) {
-            System.out.println("nisi pojeo nista");
-        }
+            if(validMove){
+                try {
+                    Piece potentialDeadPiece = currentPieces[desiredRow][desiredCol];
+                    currentPieces[desiredRow][desiredCol] = null;
+                    removePiece(chessPieceLayer, potentialDeadPiece, desiredRow, desiredCol, grid); // jedenje protivnickih pieceova
+                    
+                    recentMoveShowReset(grid);
+                    for (Node node : grid.getChildren()) {
+                        int row = GridPane.getRowIndex(node);
+                        int col = GridPane.getColumnIndex(node);
+                        if(row == desiredRow && col == desiredCol){
+                            Tile tile = (Tile) node;
+                            Color color = (Color) tile.getFill();
+                            Boolean colorType = color.equals(Color.web(Chessboard.tileColor1));
+                            colorChanger(colorType, tile);
+                        }
+                    }
+                    
+
+                } catch (Exception e) {
+                    System.out.println("nisi pojeo nista");
+                }
+                
+                addPiece(chessPieceLayer, selectedPiece, desiredRow, desiredCol, grid);
+                currentPieces[desiredRow][desiredCol] = selectedPiece;
+                currentPieces[currentRow][currentCol] = null;
         
-        addPiece(chessPieceLayer, selectedPiece, desiredRow, desiredCol, grid);
-        currentPieces[desiredRow][desiredCol] = selectedPiece;
-        currentPieces[currentRow][currentCol] = null;
+                selectedPiece.setSelected(false);
+                Chessboard.isWhite = !Chessboard.isWhite;
+                return true;
+            }
 
-        recentMoveShowReset(grid);
-        Tile tile = currentPieceTileLocator(grid, currentPieces);
-        Color color = (Color) tile.getFill();
-        Boolean colorType = color.equals(Color.web(Chessboard.tileColor1));
-        colorChanger(colorType, tile);
-
-        selectedPiece.setSelected(false);
-        Chessboard.isWhite = !Chessboard.isWhite;
+        } catch (Exception e) {
+            
+        }
+return false;
     }
 
     public void colorChanger(Boolean colorType, Tile tile){
@@ -181,6 +226,7 @@ public class Game{
     public void recentMove(Tile tile, GridPane grid){
         Color color = (Color) tile.getFill();
         Boolean colorType = color.equals(Color.web(Chessboard.tileColor1));
+
         recentMoveShowReset(grid);
         
 
@@ -190,7 +236,6 @@ public class Game{
     public void pause(int millis){
         PauseTransition pause = new PauseTransition(Duration.millis(millis));
                         pause.setOnFinished(e -> {
-                        System.out.println("Action after delay");
                         });
                         pause.play();
 
@@ -203,9 +248,11 @@ public class Game{
                     Node currentNode = (Node) event2.getSource();
                     Tile tile = (Tile) event2.getSource();
                     
-                    recentMove(tile, grid);
+                    if(moveAction(currentPieces, grid, currentNode, chessPieceLayer)){
+                        recentMove(tile, grid);
+                    };
+
                     
-                    moveAction(currentPieces, grid, currentNode, chessPieceLayer);
                     pause(16);
                         
                 }
@@ -249,7 +296,9 @@ public class Game{
                         if (!thisIsReallyStupid(currentPieces) && !correctColor) { // jedenje
                             Node node = (Node) event1.getSource();
 
-                           moveAction(currentPieces, grid, node, chessPieceLayer); 
+                           moveAction(currentPieces, grid, node, chessPieceLayer);
+                           
+
                            pause(16);
                          }
                     });

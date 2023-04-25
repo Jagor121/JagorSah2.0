@@ -9,6 +9,7 @@ public abstract class Piece {
     ImageView imageView = new ImageView();
     String color;
     Boolean selected;
+    String type;
 
     public Piece(String pathToImg, String color){
         Path currentDirectory = Paths.get("").toAbsolutePath(); //relative paths do not like me so i had to do this arcane magic for it to work
@@ -24,7 +25,7 @@ public abstract class Piece {
         selected = false;
     }
 
-    abstract void Move();
+    abstract Boolean Move(Piece selectedPiece, Piece[][] currenPieces, int currentRow, int currentColumn, int desiredRow, int desiredColumn);
 
     public ImageView getImg(){
         return imageView;
@@ -40,5 +41,9 @@ public abstract class Piece {
 
     public void setSelected(Boolean selected){
         this.selected = selected;
+    }
+
+    public String getType(){
+        return type;
     }
 }

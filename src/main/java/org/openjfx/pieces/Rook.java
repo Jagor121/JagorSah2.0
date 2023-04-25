@@ -4,13 +4,41 @@ public class Rook extends Piece {
 
     public Rook(String pathToImg, String color) {
         super(pathToImg, color);
+        type = "Rook";
         //TODO Auto-generated constructor stub
     }
 
     @Override
-    void Move() {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'Move'");
-    }
+    public Boolean Move(Piece selectedPiece, Piece[][] currentPieces, int currentRow, int currentCol, int desiredRow,
+            int desiredCol) {
+            
+            if (currentRow == desiredRow || currentCol == desiredCol) {
+                // Check if there are any pieces blocking the rook's path
+                int start, end;
+                if (currentRow == desiredRow) {
+                    // Moving along a row
+                    start = Math.min(currentCol, desiredCol);
+                    end = Math.max(currentCol, desiredCol);
+                    for (int i = start + 1; i < end; i++) {
+                        if (currentPieces[currentRow][i] != null) {
+                            return false;
+                        }
+                    }
+                } else {
+                    // Moving along a column
+                    start = Math.min(currentRow, desiredRow);
+                    end = Math.max(currentRow, desiredRow);
+                    for (int i = start + 1; i < end; i++) {
+                        if (currentPieces[i][currentCol] != null) {
+                            return false;
+                        }
+                    }
+                }
+             } else{
+                return false;
+             }
+
+            return true;
+            }
     
 }
