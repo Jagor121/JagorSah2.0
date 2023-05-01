@@ -72,7 +72,7 @@ public class Game{
     public void enPassantHandler(Piece[][] currentPieces, GridPane grid, Piece selectedPiece,Group chessPieceLayer, int currentRow, int currentCol, int desiredRow, int desiredCol, int enPassantRow){
         removePiece(chessPieceLayer, currentPieces[enPassantRow][desiredCol], enPassantRow, desiredCol, grid); // removea jadnog pijuna koji je bio en passantan
         currentPieces[enPassantRow][desiredCol] = null;
-        
+
         addPiece(chessPieceLayer, selectedPiece, desiredRow, desiredCol, grid);
         currentPieces[desiredRow][desiredCol] = selectedPiece;
         currentPieces[currentRow][currentCol] = null;
@@ -102,12 +102,9 @@ public class Game{
                         if (currentPieces[i][j] instanceof Pawn) {   // god forgive me
                             Pawn selectedPiece = (Pawn) currentPieces[currentRow][currentCol];
                             int enPssntRow = selectedPiece.enPassantChecker(selectedPiece,  currentPieces, currentRow, currentCol,desiredRow, desiredCol);
-                            System.out.println(enPssntRow);
-                            System.out.println(lastPawnMoveWasTwoSquares);
 
                             if(enPssntRow != -1){ //en passant
                                 enPassantHandler(currentPieces, grid, (Piece) selectedPiece, chessPieceLayer, currentRow, currentCol, desiredRow, desiredCol, enPssntRow);
-                                System.out.println("unutra sam");
                                 return true;
                             }
 
@@ -175,7 +172,7 @@ return false;
 
     public void somethingToDoWithColor(GridPane grid, int desiredRow, int desiredCol){ // does color things when eating a piece (aka when there is no node variable available)
         for (Node node : grid.getChildren()) {     // i just didn't like seeing this in the main game logic code and decided to give it it's own function
-            int row = GridPane.getRowIndex(node); // ne znam zas pola puta pisem na engleskom, pola na hrvatskom.... bok zavrsni rad gledatelji :)
+            int row = GridPane.getRowIndex(node); // ne znam zas pola puta pisem na engleskom, pola na hrvatskom.... bok zavrsni rad gledatelji/citatelji :)
             int col = GridPane.getColumnIndex(node);
             if(row == desiredRow && col == desiredCol){
                 Tile tile = (Tile) node;
@@ -269,6 +266,14 @@ return false;
         colorChanger(colorType, tile); // metoda za mijenjanje individualnog tilea
     }
 
+    public void Deselector(GridPane grid, Piece[][] currentPieces){
+        Tile currentPieceTile = currentPieceTileLocator(grid, currentPieces);
+        Color color = (Color) currentPieceTile.getFill();
+        Boolean colorType = color.equals(Color.web(Chessboard.tileColor1Ac));
+        colorRevert(colorType, currentPieceTile);
+        thisIsAlsoReallyStupid(currentPieces);
+    }
+
     public void pause(int millis){
         PauseTransition pause = new PauseTransition(Duration.millis(millis));
                         pause.setOnFinished(e -> {
@@ -288,8 +293,7 @@ return false;
                         recentMove(tile, grid);
                     }else{
                         // stavi da makne selected svugdje i makne boju
-                        thisIsAlsoReallyStupid(currentPieces);
-                        recentMoveShowReset(grid);
+                        Deselector(grid, currentPieces);
                     }
 
                     
@@ -336,9 +340,10 @@ return false;
                         if (!thisIsReallyStupid(currentPieces) && !correctColor) { // jedenje
                             Node node = (Node) event1.getSource();
 
-                           moveAction(currentPieces, grid, node, chessPieceLayer);
+                           if(!moveAction(currentPieces, grid, node, chessPieceLayer)){
+                            Deselector(grid, currentPieces);
+                           };
                            
-
                            pause(16);
                          }
                     });

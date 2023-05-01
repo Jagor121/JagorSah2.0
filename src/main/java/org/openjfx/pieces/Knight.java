@@ -9,10 +9,17 @@ public class Knight extends Piece{
     }
 
     @Override
-    public Boolean Move(Piece selectedPiece, Piece[][] currenPieces, int currentRow, int currentColumn, int desiredRow,
-            int desiredColumn) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'Move'");
+    public Boolean Move(Piece selectedPiece, Piece[][] currenPieces, int currentRow, int currentCol, int desiredRow,
+            int desiredCol) {
+                int rowDiff = Math.abs(currentRow - desiredRow);
+                int colDiff = Math.abs(currentCol - desiredCol);
+            
+
+                if (rowDiff == 2 && colDiff == 1 || rowDiff == 1 && colDiff == 2) {
+                    return true;
+                } 
+                 return false;
+                
     }
 
 }
