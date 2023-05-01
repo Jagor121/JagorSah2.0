@@ -109,7 +109,7 @@ public class Chessboard extends Application {
             currentPieces[7][7] = new Rook("whiterook.png","white");
 
             for (int i = 0; i < 8; i++) {
-                // currentPieces[6][i] = new Pawn("whitepawn.png","white");
+             currentPieces[6][i] = new Pawn("whitepawn.png","white");
             }
 
             if(!isWhite){
