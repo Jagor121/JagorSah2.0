@@ -8,10 +8,18 @@ public class Queen extends Piece {
     }
 
     @Override
-    public Boolean Move(Piece selectedPiece, Piece[][] currenPieces, int currentRow, int currentColumn, int desiredRow,
-            int desiredColumn) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'Move'");
+    public Boolean Move(Piece selectedPiece, Piece[][] currentPieces, int currentRow, int currentCol, int desiredRow,
+            int desiredCol) {
+
+         if(new Rook().Move(selectedPiece, currentPieces, currentRow, currentCol, desiredRow, desiredCol)){
+            return true;
+         }
+
+         if(new Bishop().Move(selectedPiece, currentPieces, currentRow, currentCol, desiredRow, desiredCol)){
+            return true;
+         }
+
+        return false;
     }
 
     

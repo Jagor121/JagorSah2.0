@@ -8,6 +8,11 @@ public class Rook extends Piece {
         //TODO Auto-generated constructor stub
     }
 
+    public Rook(){
+        super();
+        type = "Rook";
+    }
+
     @Override
     public Boolean Move(Piece selectedPiece, Piece[][] currentPieces, int currentRow, int currentCol, int desiredRow,
             int desiredCol) {

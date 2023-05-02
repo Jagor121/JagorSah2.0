@@ -25,6 +25,10 @@ public abstract class Piece {
         selected = false;
     }
 
+    public Piece(){
+        selected = false;
+    }
+
     abstract Boolean Move(Piece selectedPiece, Piece[][] currenPieces, int currentRow, int currentColumn, int desiredRow, int desiredColumn);
 
     public ImageView getImg(){
