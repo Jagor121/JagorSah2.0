@@ -23,6 +23,7 @@ import javafx.util.Duration;
 
 public class Game{
     public static Boolean lastPawnMoveWasTwoSquares = false;
+    
 
     public Boolean thisIsReallyStupid(Piece[][] currentPieces){ // this is so unimaginably stupid i hope to god nobody sees this
         int selected = 0;  // ova metoda gleda svaki piece i "omogucuje" da bude samo jedan selektiran piece odjednom
@@ -83,6 +84,29 @@ public class Game{
         System.out.println("isuse kriste en passant!!!!!!!!!");
     }
 
+    public void castleHandler(Piece[][] currentPieces, GridPane grid, Piece selectedPiece, Group chessPieceLayer, int Row, int currentCol, int desiredCol, int rookCol){
+        removePiece(chessPieceLayer, selectedPiece, Row, currentCol, grid); // remove king image
+
+        removePiece(chessPieceLayer, currentPieces[Row][rookCol], Row, rookCol, grid); // remove rook image 
+
+        int destinationRookCol = (rookCol == 0) ? 1 : -1;
+
+        currentPieces[Row][desiredCol] = selectedPiece; // stavlja kralj na zeljeno mjesto
+        currentPieces[Row][currentCol] = null; // mice og kralja
+        addPiece(chessPieceLayer,selectedPiece,Row,desiredCol,grid);
+
+        currentPieces[Row][desiredCol + destinationRookCol] = currentPieces[Row][rookCol]; // stavlja rook pored kralja
+        currentPieces[Row][rookCol] = null; // mice og rook  
+        addPiece(chessPieceLayer, currentPieces[Row][desiredCol + destinationRookCol], Row, desiredCol + destinationRookCol, grid);
+
+        selectedPiece.setSelected(false);
+        Chessboard.isWhite = !Chessboard.isWhite;
+        lastPawnMoveWasTwoSquares = false;
+        ((King)selectedPiece).setHasMoved();
+
+        System.out.println("CASTLELELELELELELELELLEL");
+    }
+
     public Boolean moveAction(Piece[][] currentPieces, GridPane grid, Node currentNode, Group chessPieceLayer){
                 
         int desiredRow = GridPane.getRowIndex(currentNode);
@@ -97,11 +121,20 @@ public class Game{
                         currentRow = i;
                         currentCol = j;
 
-                         if(!(currentPieces[i][j] instanceof Pawn)){
-                             lastPawnMoveWasTwoSquares = false;
-                         }
+                        if(currentPieces[i][j] instanceof King){
+                            // stavi tu prvo vrlo vazan check i checkmate kod
+                            King king = (King)currentPieces[i][j];
 
-                         if (currentPieces[i][j] instanceof Pawn) {   // god forgive me
+
+                            // rosado kod manje vazan
+                            int rookCol = king.castleChecker(king, currentPieces, currentRow, currentCol, desiredRow, desiredCol);
+                            if(rookCol != -1){
+                                castleHandler(currentPieces, grid, king, chessPieceLayer, currentRow, currentCol, desiredCol, rookCol);
+                                return true;
+                            }
+                        }
+                    
+                         if (currentPieces[i][j] instanceof Pawn) {   // boze pomozi
                              Pawn selectedPiece = (Pawn) currentPieces[currentRow][currentCol];
                              int enPssntRow = selectedPiece.enPassantChecker(selectedPiece,  currentPieces, currentRow, currentCol,desiredRow, desiredCol);
 
@@ -109,10 +142,12 @@ public class Game{
                                  enPassantHandler(currentPieces, grid, (Piece) selectedPiece, chessPieceLayer, currentRow, currentCol, desiredRow, desiredCol, enPssntRow);
                                  return true;
                              }
+                        } else{
+                            lastPawnMoveWasTwoSquares = false;  // iskreno nisam siguran zasto ovo bas mora biti ovdje ali bez ovoga en passant ne radi
                         }
                         
                         validMove = currentPieces[currentRow][currentCol].Move(currentPieces[currentRow][currentCol], currentPieces, currentRow, currentCol, desiredRow, desiredCol);
-
+                        // je li mozete vjerovati da je ova validMove linija gore prije bila 30 linija jer sam ja glupan??
                         
                     }
                 } catch (Exception e) {
@@ -151,7 +186,7 @@ public class Game{
         } catch (Exception e) {
             
         }
-return false;
+        return false;
     }
 
     public void somethingToDoWithColor(GridPane grid, int desiredRow, int desiredCol){ // does color things when eating a piece (aka when there is no node variable available)

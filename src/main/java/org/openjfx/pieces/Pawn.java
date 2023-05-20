@@ -46,7 +46,7 @@ public class Pawn extends Piece {
 
     public int enPassantChecker(Piece selectedPiece, Piece[][] currentPieces, int currentRow, int currentCol, int desiredRow,
     int desiredCol){
-        int enPassantRow = (selectedPiece.getColor().equals("white")) ? 3 : 4;
+        int enPassantRow = (selectedPiece.getColor().equals("white")) ? 3 : 4; //odreduje red en passanta oviseci o boji
 
         if (Math.abs(desiredCol - currentCol) == 1 && currentRow == enPassantRow) {
             // check if the en passant capture is valid
