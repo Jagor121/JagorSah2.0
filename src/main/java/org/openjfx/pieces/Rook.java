@@ -1,6 +1,7 @@
 package org.openjfx.pieces;
 
 public class Rook extends Piece {
+    Boolean hasMoved = false;
 
     public Rook(String pathToImg, String color) {
         super(pathToImg, color);
@@ -43,7 +44,16 @@ public class Rook extends Piece {
                 return false;
              }
 
+            setHasMoved();
             return true;
+            }
+
+            public Boolean gethasMoved(){
+                return hasMoved;
+            }
+
+            public void setHasMoved(){
+                hasMoved = true;
             }
     
 }

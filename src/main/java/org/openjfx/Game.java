@@ -89,45 +89,29 @@ public class Game{
         int desiredCol = GridPane.getColumnIndex(currentNode);
         Boolean validMove = false;
         int currentRow = 0, currentCol = 0;
+
         for (int i = 0; i < currentPieces.length; i++) {
             for (int j = 0; j < currentPieces[i].length; j++) {
                 try {
                     if(currentPieces[i][j].getSelected()){
                         currentRow = i;
                         currentCol = j;
-                        if(!(currentPieces[i][j] instanceof Pawn)){
-                            lastPawnMoveWasTwoSquares = false;
+
+                         if(!(currentPieces[i][j] instanceof Pawn)){
+                             lastPawnMoveWasTwoSquares = false;
+                         }
+
+                         if (currentPieces[i][j] instanceof Pawn) {   // god forgive me
+                             Pawn selectedPiece = (Pawn) currentPieces[currentRow][currentCol];
+                             int enPssntRow = selectedPiece.enPassantChecker(selectedPiece,  currentPieces, currentRow, currentCol,desiredRow, desiredCol);
+
+                             if(enPssntRow != -1){ //en passant
+                                 enPassantHandler(currentPieces, grid, (Piece) selectedPiece, chessPieceLayer, currentRow, currentCol, desiredRow, desiredCol, enPssntRow);
+                                 return true;
+                             }
                         }
-
-                        if (currentPieces[i][j] instanceof Pawn) {   // god forgive me
-                            Pawn selectedPiece = (Pawn) currentPieces[currentRow][currentCol];
-                            int enPssntRow = selectedPiece.enPassantChecker(selectedPiece,  currentPieces, currentRow, currentCol,desiredRow, desiredCol);
-
-                            if(enPssntRow != -1){ //en passant
-                                enPassantHandler(currentPieces, grid, (Piece) selectedPiece, chessPieceLayer, currentRow, currentCol, desiredRow, desiredCol, enPssntRow);
-                                return true;
-                            }
-
-                            validMove = selectedPiece.Move(selectedPiece, currentPieces, currentRow, currentCol, desiredRow, desiredCol);
-
-
-                        } else if (currentPieces[i][j] instanceof Rook) {
-                            Rook selectedPiece = (Rook) currentPieces[currentRow][currentCol];
-                            validMove = selectedPiece.Move(selectedPiece, currentPieces, currentRow, currentCol, desiredRow, desiredCol);
-
-                        } else if (currentPieces[i][j] instanceof Knight) {
-                            Knight selectedPiece = (Knight) currentPieces[currentRow][currentCol];
-                            validMove = selectedPiece.Move(selectedPiece, currentPieces, currentRow, currentCol, desiredRow, desiredCol);
-                        } else if (currentPieces[i][j] instanceof Bishop) {
-                            Bishop selectedPiece = (Bishop) currentPieces[currentRow][currentCol];
-                            validMove = selectedPiece.Move(selectedPiece, currentPieces, currentRow, currentCol, desiredRow, desiredCol);
-                        } else if (currentPieces[i][j] instanceof Queen) {
-                            Queen selectedPiece = (Queen) currentPieces[currentRow][currentCol];
-                            validMove = selectedPiece.Move(selectedPiece, currentPieces, currentRow, currentCol, desiredRow, desiredCol);
-                        } else if (currentPieces[i][j] instanceof King) {
-                            King selectedPiece = (King) currentPieces[currentRow][currentCol];
-                            validMove = selectedPiece.Move(selectedPiece, currentPieces, currentRow, currentCol, desiredRow, desiredCol);
-                        } 
+                        
+                        validMove = currentPieces[currentRow][currentCol].Move(currentPieces[currentRow][currentCol], currentPieces, currentRow, currentCol, desiredRow, desiredCol);
 
                         
                     }

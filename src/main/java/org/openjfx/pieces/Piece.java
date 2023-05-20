@@ -5,7 +5,7 @@ import java.nio.file.Paths;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 
-public abstract class Piece {
+public class Piece {
     ImageView imageView = new ImageView();
     String color;
     Boolean selected;
@@ -29,7 +29,9 @@ public abstract class Piece {
         selected = false;
     }
 
-    abstract Boolean Move(Piece selectedPiece, Piece[][] currenPieces, int currentRow, int currentColumn, int desiredRow, int desiredColumn);
+    public Boolean Move(Piece selectedPiece, Piece[][] currenPieces, int currentRow, int currentColumn, int desiredRow, int desiredColumn){
+        return false;
+    }
 
     public ImageView getImg(){
         return imageView;
