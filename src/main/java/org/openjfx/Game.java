@@ -5,6 +5,7 @@ import org.openjfx.pieces.King;
 import org.openjfx.pieces.Pawn;
 import org.openjfx.pieces.Piece;
 import org.openjfx.pieces.Queen;
+import org.openjfx.pieces.Rook;
 
 import javafx.animation.PauseTransition;
 import javafx.scene.Group;
@@ -19,6 +20,19 @@ import javafx.util.Duration;
 public class Game{
     public static Boolean lastPawnMoveWasTwoSquares = false;
     
+    public void stupidForTheLastTime(Piece piece){
+        try {
+            if(piece instanceof King){
+                ((King) piece).setHasMoved();
+            }
+            
+            if(piece instanceof Rook){
+                ((Rook) piece).setHasMoved();
+            }
+        } catch (Exception e) {
+            
+        }
+    }
 
     public Boolean thisIsReallyStupid(Piece[][] currentPieces){ // this is so unimaginably stupid i hope to god nobody sees this
         int selected = 0;  // ova metoda gleda svaki piece i "omogucuje" da bude samo jedan selektiran piece odjednom
@@ -128,13 +142,129 @@ public class Game{
         System.out.println("PROMOCCIAJIAJIAJJAIIJI");
     }
 
+    public King currentKingLocator(Piece[][] currentPieces){
+        String playerColor = (Chessboard.isWhite) ? "white" : "black";
+
+        for (Piece[] pieces : currentPieces) {
+            for (Piece piece : pieces) {
+                if(piece instanceof King && piece.getColor().equals(playerColor)){
+                    return ((King)piece);
+                }
+            }
+        }
+
+        return null;
+    }
+
+    public Boolean isKingInCheck(Piece[][] currentPieces, King currentKing){
+      
+        int currentRow = 0, currentCol = 0;
+
+        for (int i = 0; i < currentPieces.length; i++) {  // trazi row i col kralja, nije li java toliko zabavna>??????
+            for (int j = 0; j < currentPieces[i].length; j++) {
+                try {
+                    if(currentPieces[i][j] == currentKing){
+                        currentRow = i;
+                        currentCol = j;
+                    } 
+                } catch (Exception e) {
+                   continue;
+                }
+            }
+        }
+
+        if(currentKing.checkChecker(currentPieces, currentRow, currentCol)){
+            return true;
+        }
+        return false;
+    }
+
+    public Boolean legalMovesChecker(Piece[][] currentPieces, Piece selectedPiece, King currentKing, Boolean validMove, int currentRow, int currentCol, int desiredRow, int desiredCol, int stupidRookColumn){
+        Boolean isKingInCheck = isKingInCheck(currentPieces, currentKing);
+        Boolean futureKingLegality = false;
+
+        Piece[][] futurePieces = new Piece[currentPieces.length][currentPieces.length];
+        for (int i = 0; i < currentPieces.length; i++) {
+            for (int j = 0; j < currentPieces.length; j++) {
+                futurePieces[i][j] = currentPieces[i][j];
+            }
+        }
+
+        if(stupidRookColumn == -1){ //castling clause,, YAYYYYY
+            futurePieces[desiredRow][desiredCol] = selectedPiece;
+            futurePieces[currentRow][currentCol] = null;
+            futureKingLegality = (isKingInCheck && !(currentKing.checkChecker(futurePieces, desiredRow, desiredCol))) || (!isKingInCheck && !(currentKing.checkChecker(futurePieces, desiredRow, desiredCol)));
+        } else{
+            int Row = currentRow;
+            int destinationRookCol = (stupidRookColumn == 0) ? 1 : -1;
+            int step = desiredCol + destinationRookCol;
+            futurePieces[Row][step] = selectedPiece;
+            futurePieces[Row][currentCol] = null; // mice og kralja
+
+            Boolean castlestep = (isKingInCheck && !(currentKing.checkChecker(futurePieces, Row, step))) || (!isKingInCheck && !(currentKing.checkChecker(futurePieces, Row, step)));
+            System.out.println("\nCastle clause: "+ castlestep);
+
+            futurePieces[Row][desiredCol] = selectedPiece; // stavlja kralj na zeljeno mjesto
+            
+            futurePieces[Row][step] = futurePieces[Row][stupidRookColumn]; // stavlja rook pored kralja
+            futurePieces[Row][stupidRookColumn] = null; // mice og rook  
+            
+            futureKingLegality = castlestep && ((isKingInCheck && !(currentKing.checkChecker(futurePieces, Row, step))) || (!isKingInCheck && !(currentKing.checkChecker(futurePieces, Row, step))));
+            
+
+        }
+        
+
+        Boolean legalKingMove = validMove && futureKingLegality && selectedPiece == currentKing;
+        // the line above determines if a king move would be a valid way to get out of check
+
+        int kingRow = 0, kingCol = 0;
+        for (int i = 0; i < currentPieces.length; i++) {  // trazi row i col kralja, nije li java toliko zabavna>??????
+            for (int j = 0; j < currentPieces[i].length; j++) {
+                try {
+                    if(currentPieces[i][j] == currentKing){
+                        kingRow = i;
+                        kingCol = j;
+                    } 
+                } catch (Exception e) {
+                   continue;
+                }
+            }
+        }
+
+        for (int i = 0; i < currentPieces.length; i++) {
+            for (int j = 0; j < currentPieces.length; j++) {
+                futurePieces[i][j] = currentPieces[i][j];
+            }
+        }
+
+        
+            futurePieces[desiredRow][desiredCol] = selectedPiece;
+            futurePieces[currentRow][currentCol] = null;
+        
+
+        futureKingLegality = (isKingInCheck && !(currentKing.checkChecker(futurePieces, kingRow, kingCol))) || (!isKingInCheck && !(currentKing.checkChecker(futurePieces, kingRow, kingCol)));
+        Boolean legalOtherMove = validMove && futureKingLegality && selectedPiece != currentKing;
+        // the above line checks if a non king move is a valid way to get out of check
+
+        if(validMove && (legalKingMove || legalOtherMove)){
+            //System.out.println("\nKralj: " + legalKingMove + "\nDrugi: " + legalOtherMove + "\nSah? " + isKingInCheck);
+            return true;
+        }
+
+        //System.out.println("\nKralj: " + legalKingMove + "\nDrugi: " + legalOtherMove + "\nSah? " + isKingInCheck);
+        return false;
+    }
+
     public Boolean moveAction(Piece[][] currentPieces, GridPane grid, Node currentNode, Group chessPieceLayer){
                 
         int desiredRow = GridPane.getRowIndex(currentNode);
         int desiredCol = GridPane.getColumnIndex(currentNode);
         Boolean validMove = false;
+        Boolean legalMove = false;
         int currentRow = 0, currentCol = 0;
-
+        King currentKing = currentKingLocator(currentPieces);
+        
         for (int i = 0; i < currentPieces.length; i++) {
             for (int j = 0; j < currentPieces[i].length; j++) {
                 try {
@@ -143,30 +273,51 @@ public class Game{
                         currentCol = j;
 
                         validMove = currentPieces[currentRow][currentCol].Move(currentPieces[currentRow][currentCol], currentPieces, currentRow, currentCol, desiredRow, desiredCol);
+                      
                         // je li mozete vjerovati da je ova validMove linija gore prije bila 30 linija jer sam ja glupan??
                         
                         if(currentPieces[i][j] instanceof King){ // rosado (castling) code
-                            King king = (King)currentPieces[i][j];
-
-                            int rookCol = king.castleChecker(king, currentPieces, currentRow, currentCol, desiredRow, desiredCol);
+                            int rookCol = currentKing.castleChecker(currentKing, currentPieces, currentRow, currentCol, desiredRow, desiredCol);
                             if(rookCol != -1){
-                                castleHandler(currentPieces, grid, king, chessPieceLayer, currentRow, currentCol, desiredCol, rookCol);
-                                return true;
+                                validMove = true;
+                                legalMove = legalMovesChecker(currentPieces, currentKing, currentKing, validMove, currentRow, currentCol, desiredRow, desiredCol, rookCol);
+
+                                if(legalMove){
+                                    stupidForTheLastTime(currentKing);
+                                    castleHandler(currentPieces, grid, currentKing, chessPieceLayer, currentRow, currentCol, desiredCol, rookCol);
+                                    return true;
+                                }
+                                validMove = false;
                             }
-                        }
+                        } 
                     
                          if (currentPieces[i][j] instanceof Pawn) {   // boze pomozi pawn stvarima
                              Pawn selectedPiece = (Pawn) currentPieces[currentRow][currentCol];
                              int enPssntRow = selectedPiece.enPassantChecker(selectedPiece,  currentPieces, currentRow, currentCol,desiredRow, desiredCol);
 
                              if(selectedPiece.Hamburger(selectedPiece, desiredRow) && validMove){ // promocija pijuna
-                                promotionHandler(currentPieces, selectedPiece, grid,  chessPieceLayer, currentRow, currentCol, desiredRow, desiredCol);
-                                return true;
+                                String isWhite = (selectedPiece.getColor().equals("white")) ? "white" : "black";  // odreduje vrstu kraljice
+                                Queen queen = new Queen(isWhite + "queen.png", isWhite);
+
+                                validMove = true;
+                                legalMove = legalMovesChecker(currentPieces, queen, currentKing, validMove, currentRow, currentCol, desiredRow, desiredCol, -1);
+
+   
+                                if(legalMove){
+                                    promotionHandler(currentPieces, selectedPiece, grid,  chessPieceLayer, currentRow, currentCol, desiredRow, desiredCol);
+                                    return true;
+                                }
+
                              }
 
                              if(enPssntRow != -1){ //en passant
+                                validMove = true;
+                                legalMove = legalMovesChecker(currentPieces, currentPieces[currentRow][currentCol], currentKing, validMove, currentRow, currentCol, desiredRow, desiredCol, -1);
+
+                                if(legalMove){
                                  enPassantHandler(currentPieces, grid, (Piece) selectedPiece, chessPieceLayer, currentRow, currentCol, desiredRow, desiredCol, enPssntRow);
                                  return true;
+                                } 
                              }
                         } else{
                             lastPawnMoveWasTwoSquares = false;  // iskreno nisam siguran zasto ovo bas mora biti ovdje ali bez ovoga en passant ne radi
@@ -182,9 +333,11 @@ public class Game{
         }
         
         Piece selectedPiece = currentPieces[currentRow][currentCol];
+        legalMove = legalMovesChecker(currentPieces, selectedPiece, currentKing, validMove, currentRow, currentCol, desiredRow, desiredCol, -1);
+
         try {
             
-            if(validMove){
+            if(legalMove){
                 try {
                     Piece potentialDeadPiece = currentPieces[desiredRow][desiredCol];
                     currentPieces[desiredRow][desiredCol] = null;
@@ -203,6 +356,7 @@ public class Game{
         
                 selectedPiece.setSelected(false);
                 Chessboard.isWhite = !Chessboard.isWhite;
+                stupidForTheLastTime(selectedPiece);
                 
                 
                 return true;

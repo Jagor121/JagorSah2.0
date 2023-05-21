@@ -13,10 +13,30 @@ public class King extends Piece{
             int desiredCol) {
         
                 if(Math.abs(currentCol - desiredCol) <= 1 && Math.abs(currentRow - desiredRow) <= 1){
-                    setHasMoved();
                     return true;
                 }
                 return false;
+    }
+
+    public Boolean checkChecker(Piece[][] currentPieces, int Row, int Col){
+        Boolean validMove = false; 
+        Boolean isOppositeColor = false;
+
+        for (int i = 0; i < currentPieces.length; i++) {
+            for (int j = 0; j < currentPieces.length; j++) {
+                try {
+                    validMove = currentPieces[i][j].Move(currentPieces[i][j], currentPieces, i, j, Row, Col);
+                    isOppositeColor = !(currentPieces[i][j].getColor().equals(currentPieces[Row][Col].getColor()));
+                    if(validMove && isOppositeColor){
+                        return true;
+                    }
+                } catch (Exception e) {
+                    continue;
+                }
+
+            }
+        }
+        return false;
     }
 
     public int castleChecker(King selectedPiece, Piece[][] currentPieces, int currentRow, int currentCol, int desiredRow, int desiredCol){

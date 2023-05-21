@@ -29,7 +29,7 @@ public class Piece {
         selected = false;
     }
 
-    public Boolean Move(Piece selectedPiece, Piece[][] currenPieces, int currentRow, int currentColumn, int desiredRow, int desiredColumn){
+    public Boolean Move(Piece selectedPiece, Piece[][] currentPieces, int currentRow, int currentColumn, int desiredRow, int desiredColumn){
         return false;
     }
 
