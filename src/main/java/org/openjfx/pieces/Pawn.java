@@ -8,7 +8,7 @@ public class Pawn extends Piece {
     public Pawn(String pathToImg, String color) {
         super(pathToImg, color);
         type = "Pawn";
-        //TODO Auto-generated constructor stub
+
     }
 
     @Override

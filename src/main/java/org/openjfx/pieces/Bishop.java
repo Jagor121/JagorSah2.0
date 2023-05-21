@@ -4,7 +4,7 @@ public class Bishop extends Piece{
     public Bishop(String pathToImg, String color) {
         super(pathToImg, color);
         type = "Bishop";
-        //TODO Auto-generated constructor stub
+
     }
 
     public Bishop(){

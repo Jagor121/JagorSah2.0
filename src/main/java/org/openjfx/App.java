@@ -10,8 +10,6 @@ import javafx.scene.layout.GridPane;
 import javafx.stage.Stage;
 
 import java.io.IOException;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 
 /**
  * JavaFX App
@@ -29,7 +27,7 @@ public class App extends Application {
             try {
                 chessboard.start(stage);
             } catch (Exception e) {
-                // TODO Auto-generated catch block
+
                 e.printStackTrace();
                 System.out.println("bravo glupane");
             }
@@ -43,6 +41,7 @@ public class App extends Application {
         stage.setScene(scene);
         stage.setTitle("Main Menu");
         stage.show();
+        stage.setResizable(false); // Prevent resizing
 
         
     }

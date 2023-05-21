@@ -5,7 +5,7 @@ public class King extends Piece{
     public King(String pathToImg, String color) {
         super(pathToImg, color);
         type = "King";
-        //TODO Auto-generated constructor stub
+
     }
 
     @Override

@@ -6,7 +6,7 @@ public class Rook extends Piece {
     public Rook(String pathToImg, String color) {
         super(pathToImg, color);
         type = "Rook";
-        //TODO Auto-generated constructor stub
+
     }
 
     public Rook(){

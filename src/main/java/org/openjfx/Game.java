@@ -126,7 +126,7 @@ public class Game{
             recentMoveShowReset(grid);
             somethingToDoWithColor(grid, desiredRow, desiredCol); // ovo radi stvari kada selectas piece posto nema node varijable
         } catch (Exception e) {
-            // TODO: handle exception
+ 
         }
 
         String isWhite = (selectedPiece.getColor().equals("white")) ? "white" : "black";  // odreduje vrstu kraljice
@@ -202,7 +202,6 @@ public class Game{
             futurePieces[Row][currentCol] = null; // mice og kralja
 
             Boolean castlestep = (isKingInCheck && !(currentKing.checkChecker(futurePieces, Row, step))) || (!isKingInCheck && !(currentKing.checkChecker(futurePieces, Row, step)));
-            System.out.println("\nCastle clause: "+ castlestep);
 
             futurePieces[Row][desiredCol] = selectedPiece; // stavlja kralj na zeljeno mjesto
             
@@ -389,7 +388,7 @@ public class Game{
                 tile.setFill(Color.web(Chessboard.tileColor2Ac));
             }
         } catch (Exception e) {
-            // TODO: handle exception
+
         }
 
     }
@@ -402,7 +401,7 @@ public class Game{
                 tile.setFill(Color.web(Chessboard.tileColor2));
             }
         } catch (Exception e) {
-            // TODO: handle exception
+
         }
 
     }
