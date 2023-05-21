@@ -1,20 +1,15 @@
 package org.openjfx;
 
 
-import org.openjfx.pieces.Bishop;
 import org.openjfx.pieces.King;
-import org.openjfx.pieces.Knight;
 import org.openjfx.pieces.Pawn;
 import org.openjfx.pieces.Piece;
 import org.openjfx.pieces.Queen;
-import org.openjfx.pieces.Rook;
 
 import javafx.animation.PauseTransition;
-import javafx.application.Application;
 import javafx.scene.Group;
 import javafx.scene.Node;
 import javafx.scene.Scene;
-import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.GridPane;
 import javafx.scene.paint.Color;
@@ -107,6 +102,32 @@ public class Game{
         System.out.println("CASTLELELELELELELELELLEL");
     }
 
+    public void promotionHandler(Piece[][] currentPieces, Piece selectedPiece, GridPane grid, Group chessPieceLayer, int currentRow, int currentCol, int desiredRow, int desiredCol){
+        removePiece(chessPieceLayer, selectedPiece, currentRow, currentCol, grid);
+        currentPieces[currentRow][currentCol] = null; // mice pijuna
+        
+        try {  // ovo radi funkcionalno istu stvar kao jedenje
+            removePiece(chessPieceLayer, currentPieces[desiredRow][desiredCol], desiredRow, desiredCol, grid);
+            currentPieces[desiredRow][desiredCol] = null;
+            recentMoveShowReset(grid);
+            somethingToDoWithColor(grid, desiredRow, desiredCol); // ovo radi stvari kada selectas piece posto nema node varijable
+        } catch (Exception e) {
+            // TODO: handle exception
+        }
+
+        String isWhite = (selectedPiece.getColor().equals("white")) ? "white" : "black";  // odreduje vrstu kraljice
+        Queen queen = new Queen(isWhite + "queen.png", isWhite);
+        addPiece(chessPieceLayer, queen, desiredRow, desiredCol, grid);
+        currentPieces[desiredRow][desiredCol] = queen; 
+        pieceEventListenerLogic(currentPieces[desiredRow][desiredCol], currentPieces, grid, chessPieceLayer);
+        
+        
+        selectedPiece.setSelected(false);
+        Chessboard.isWhite = !Chessboard.isWhite;
+        lastPawnMoveWasTwoSquares = false;
+        System.out.println("PROMOCCIAJIAJIAJJAIIJI");
+    }
+
     public Boolean moveAction(Piece[][] currentPieces, GridPane grid, Node currentNode, Group chessPieceLayer){
                 
         int desiredRow = GridPane.getRowIndex(currentNode);
@@ -121,12 +142,12 @@ public class Game{
                         currentRow = i;
                         currentCol = j;
 
-                        if(currentPieces[i][j] instanceof King){
-                            // stavi tu prvo vrlo vazan check i checkmate kod
+                        validMove = currentPieces[currentRow][currentCol].Move(currentPieces[currentRow][currentCol], currentPieces, currentRow, currentCol, desiredRow, desiredCol);
+                        // je li mozete vjerovati da je ova validMove linija gore prije bila 30 linija jer sam ja glupan??
+                        
+                        if(currentPieces[i][j] instanceof King){ // rosado (castling) code
                             King king = (King)currentPieces[i][j];
 
-
-                            // rosado kod manje vazan
                             int rookCol = king.castleChecker(king, currentPieces, currentRow, currentCol, desiredRow, desiredCol);
                             if(rookCol != -1){
                                 castleHandler(currentPieces, grid, king, chessPieceLayer, currentRow, currentCol, desiredCol, rookCol);
@@ -134,9 +155,14 @@ public class Game{
                             }
                         }
                     
-                         if (currentPieces[i][j] instanceof Pawn) {   // boze pomozi
+                         if (currentPieces[i][j] instanceof Pawn) {   // boze pomozi pawn stvarima
                              Pawn selectedPiece = (Pawn) currentPieces[currentRow][currentCol];
                              int enPssntRow = selectedPiece.enPassantChecker(selectedPiece,  currentPieces, currentRow, currentCol,desiredRow, desiredCol);
+
+                             if(selectedPiece.Hamburger(selectedPiece, desiredRow) && validMove){ // promocija pijuna
+                                promotionHandler(currentPieces, selectedPiece, grid,  chessPieceLayer, currentRow, currentCol, desiredRow, desiredCol);
+                                return true;
+                             }
 
                              if(enPssntRow != -1){ //en passant
                                  enPassantHandler(currentPieces, grid, (Piece) selectedPiece, chessPieceLayer, currentRow, currentCol, desiredRow, desiredCol, enPssntRow);
@@ -146,8 +172,7 @@ public class Game{
                             lastPawnMoveWasTwoSquares = false;  // iskreno nisam siguran zasto ovo bas mora biti ovdje ali bez ovoga en passant ne radi
                         }
                         
-                        validMove = currentPieces[currentRow][currentCol].Move(currentPieces[currentRow][currentCol], currentPieces, currentRow, currentCol, desiredRow, desiredCol);
-                        // je li mozete vjerovati da je ova validMove linija gore prije bila 30 linija jer sam ja glupan??
+                       
                         
                     }
                 } catch (Exception e) {
@@ -326,67 +351,7 @@ public class Game{
 
         for (Piece[] pieces : currentPieces) {
             for (Piece piece : pieces) {
-                try {
-                    piece.getImg().setOnMouseClicked(event1 -> {
-                        Boolean correctColor = (Chessboard.isWhite && piece.getColor().equals("white")) || (!Chessboard.isWhite && !piece.getColor().equals("white"));
-                        if (!piece.getSelected() && thisIsReallyStupid(currentPieces) && correctColor) { // Check if a chess piece has not been selected yet
-                            ImageView selectedPieceIMG = (ImageView) event1.getSource(); // Get the clicked chess piece
-               
-      
-                            piece.setSelected(true); // Set the selected flag to true
-                            Tile tile = currentPieceTileLocator(grid, currentPieces);
-                            Color color = (Color) tile.getFill();
-                            Boolean colorType = color.equals(Color.web(Chessboard.tileColor1));
-                            colorChanger(colorType, tile);
-                            pause(16);
-
-                        } else if(!thisIsReallyStupid(currentPieces) && correctColor && !piece.getSelected()) { // selektiranje drugog piecea
-                            
-                            Tile tile = currentPieceTileLocator(grid, currentPieces);
-                            Color color = (Color) tile.getFill();
-                            Boolean colorType = color.equals(Color.web(Chessboard.tileColor1Ac));
-                            colorRevert(colorType, tile);
-
-                            thisIsAlsoReallyStupid(currentPieces);
-                            piece.setSelected(true);
-                            tile = currentPieceTileLocator(grid, currentPieces);
-                            color = (Color) tile.getFill();
-                            colorType = color.equals(Color.web(Chessboard.tileColor1));
-                            colorChanger(colorType, tile);
-                            pause(16);
-                        }
-
-                        if (!thisIsReallyStupid(currentPieces) && !correctColor) { // jedenje
-                            Node node = (Node) event1.getSource();
-
-                           if(!moveAction(currentPieces, grid, node, chessPieceLayer)){
-                            Deselector(grid, currentPieces);
-                           };
-                           
-                           pause(16);
-                         }
-                    });
-
-                    piece.getImg().setOnMouseEntered(event -> {
-                        Boolean correctColor = (Chessboard.isWhite && piece.getColor().equals("white")) || (!Chessboard.isWhite && !piece.getColor().equals("white"));
-                        // Change cursor to hand cursor when mouse is over the ImageView
-                        if(correctColor){
-                            piece.getImg().setCursor(javafx.scene.Cursor.HAND);
-                        }
-                    });
-            
-                    piece.getImg().setOnMouseExited(event -> {
-                        Boolean correctColor = (Chessboard.isWhite && piece.getColor().equals("white")) || (!Chessboard.isWhite && !piece.getColor().equals("white"));
-                        // Reset cursor to default when mouse exits the ImageView
-                        if (correctColor) {
-                            piece.getImg().setCursor(javafx.scene.Cursor.DEFAULT);
-                        }
-  
-                    });
-
-                } catch (Exception e) {
-                    continue;
-                }
+                pieceEventListenerLogic(piece, currentPieces, grid, chessPieceLayer);
             }
         }
         
@@ -394,9 +359,78 @@ public class Game{
 
     }
 
+    public void pieceEventListenerLogic(Piece piece, Piece[][] currentPieces, GridPane grid, Group chessPieceLayer) {
+        try {
+            piece.getImg().setOnMouseClicked(event1 -> {
+                Boolean correctColor = (Chessboard.isWhite && piece.getColor().equals("white")) || (!Chessboard.isWhite && !piece.getColor().equals("white"));
+                if (!piece.getSelected() && thisIsReallyStupid(currentPieces) && correctColor) { // Check if a chess piece has not been selected yet
+                    ImageView selectedPieceIMG = (ImageView) event1.getSource(); // Get the clicked chess piece
+       
+
+                    piece.setSelected(true); // Set the selected flag to true
+                    Tile tile = currentPieceTileLocator(grid, currentPieces);
+                    Color color = (Color) tile.getFill();
+                    Boolean colorType = color.equals(Color.web(Chessboard.tileColor1));
+                    colorChanger(colorType, tile);
+                    pause(16);
+
+                } else if(!thisIsReallyStupid(currentPieces) && correctColor && !piece.getSelected()) { // selektiranje drugog piecea
+                    
+                    Tile tile = currentPieceTileLocator(grid, currentPieces);
+                    Color color = (Color) tile.getFill();
+                    Boolean colorType = color.equals(Color.web(Chessboard.tileColor1Ac));
+                    colorRevert(colorType, tile);
+
+                    thisIsAlsoReallyStupid(currentPieces);
+                    piece.setSelected(true);
+                    tile = currentPieceTileLocator(grid, currentPieces);
+                    color = (Color) tile.getFill();
+                    colorType = color.equals(Color.web(Chessboard.tileColor1));
+                    colorChanger(colorType, tile);
+                    pause(16);
+                }
+
+                if (!thisIsReallyStupid(currentPieces) && !correctColor) { // jedenje
+                    Node node = (Node) event1.getSource();
+
+                   if(!moveAction(currentPieces, grid, node, chessPieceLayer)){
+                    Deselector(grid, currentPieces);
+                   };
+                   
+                   pause(16);
+                 }
+            });
+
+            piece.getImg().setOnMouseEntered(event -> {
+                Boolean correctColor = (Chessboard.isWhite && piece.getColor().equals("white")) || (!Chessboard.isWhite && !piece.getColor().equals("white"));
+                // Change cursor to hand cursor when mouse is over the ImageView
+                if(correctColor){
+                    piece.getImg().setCursor(javafx.scene.Cursor.HAND);
+                }
+            });
+    
+            piece.getImg().setOnMouseExited(event -> {
+                Boolean correctColor = (Chessboard.isWhite && piece.getColor().equals("white")) || (!Chessboard.isWhite && !piece.getColor().equals("white"));
+                // Reset cursor to default when mouse exits the ImageView
+                if (correctColor) {
+                    piece.getImg().setCursor(javafx.scene.Cursor.DEFAULT);
+                }
+
+            });
+
+        } catch (Exception e) {
+            
+        }
+    }
+
     public void Logic(GridPane grid, Group chessPiecesLayer, Piece[][] currentPieces, Stage primaryStage, Scene scene) {
 
         movementHandler(currentPieces, Chessboard.isWhite, grid, chessPiecesLayer); // initializes piece movement/selection capabilites
+
+                         // ovaj while true je ovdje jer sam htio imat eventlistener za 2d array ali to je propalo u vodu, duga prica ovo treba biti tu da mogu
+        //while (true) {  // promijeniti scenu kada je checkmate
+            
+        //}
 
     }
 }

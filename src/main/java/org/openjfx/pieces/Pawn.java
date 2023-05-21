@@ -58,6 +58,17 @@ public class Pawn extends Piece {
         return -1;
     }
     
+    public Boolean Hamburger(Pawn selectedPawn, int desiredRow){ // zove se hamburger jer sam izgubio smislenost, gleda dal pijun zeli ic do kraja boarda
+        Boolean isWhite = selectedPawn.getColor().equals("white");
+        
+        if((isWhite && 0 == desiredRow) || (!isWhite && 7 == desiredRow)){
+            return true;
+        }
+
+
+        return false;
+    }
+
     public void setFirstMove(){
         isFirstMove = false;
     }
