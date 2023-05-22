@@ -55,10 +55,16 @@ public class Pawn extends Piece {
     public int enPassantChecker(Piece selectedPiece, Piece[][] currentPieces, int currentRow, int currentCol, int desiredRow,
     int desiredCol){
         int enPassantRow = (selectedPiece.getColor().equals("white")) ? 3 : 4; //odreduje red en passanta oviseci o boji
+        Boolean whatPawn = false;
+        int jrow = Game.getJRow();
+        int jcol = Game.getJCol();
+        if(currentPieces[jrow][jcol] == currentPieces[enPassantRow][desiredCol]){
+            whatPawn = true;
+        }
 
         if (Math.abs(desiredCol - currentCol) == 1 && currentRow == enPassantRow) {
             // check if the en passant capture is valid
-            if (Game.lastPawnMoveWasTwoSquares && currentPieces[enPassantRow][desiredCol] instanceof Pawn && !currentPieces[enPassantRow][desiredCol].getColor().equals(selectedPiece.getColor())) {
+            if (Game.lastPawnMoveWasTwoSquares && currentPieces[enPassantRow][desiredCol] instanceof Pawn && whatPawn && !currentPieces[enPassantRow][desiredCol].getColor().equals(selectedPiece.getColor())) {
                 // play some epic sound
                 return enPassantRow;
             }

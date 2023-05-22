@@ -36,6 +36,7 @@ import javafx.geometry.Pos;
 
 
 public class Game{
+    public static int justMovedRow = -1, justMovedCol = -1;
     public static Boolean lastPawnMoveWasTwoSquares = false;
     public static Boolean currentlyChecking = false;
     StringProperty result = new SimpleStringProperty(null);
@@ -56,6 +57,19 @@ public class Game{
     MediaPlayer enpassantPlayer = new MediaPlayer(enpassantSound);
     MediaPlayer checkmatePlayer = new MediaPlayer(checkmateSound);
     
+    public static void setJustMoved(int row, int col){
+        justMovedRow = row;
+        justMovedCol = col;
+    }
+
+    public static int getJRow(){
+        return justMovedRow;
+    }
+
+    public static int getJCol(){
+        return justMovedCol;
+    }
+
     public void playSoundEffect(MediaPlayer mediaPlayer) {
         mediaPlayer.play();
         
@@ -406,6 +420,7 @@ public class Game{
                                 if(legalMove){
                                     stupidForTheLastTime(currentKing);
                                     castleHandler(currentPieces, grid, currentKing, chessPieceLayer, currentRow, currentCol, desiredCol, rookCol);
+                                    setJustMoved(desiredRow, desiredCol);
                                     
                                     if(!checkSoundLogic(currentPieces)){
                                         playSoundEffect(castlePlayer);
@@ -428,12 +443,14 @@ public class Game{
                                 Queen queen = new Queen(isWhite + "queen.png", isWhite);
 
                                 validMove = true;
+                                currentlyChecking = true;
                                 legalMove = legalMovesChecker(currentPieces, queen, currentKing, validMove, currentRow, currentCol, desiredRow, desiredCol, -1);
-
+                                currentlyChecking = false;
    
                                 if(legalMove){
                                     promotionHandler(currentPieces, selectedPiece, grid,  chessPieceLayer, currentRow, currentCol, desiredRow, desiredCol);
-                                    
+                                    setJustMoved(desiredRow, desiredCol);
+
                                     if(!checkSoundLogic(currentPieces)){
                                         playSoundEffect(promotePlayer);
                                     } else{
@@ -452,6 +469,7 @@ public class Game{
                                 if(legalMove){
                                  enPassantHandler(currentPieces, grid, (Piece) selectedPiece, chessPieceLayer, currentRow, currentCol, desiredRow, desiredCol, enPssntRow);
                                  playSoundEffect(enpassantPlayer);
+                                 setJustMoved(desiredRow, desiredCol);
                                  return true;
                                 } 
                              }
@@ -466,10 +484,11 @@ public class Game{
         }
         
         Piece selectedPiece = currentPieces[currentRow][currentCol];
+        currentlyChecking = true;
         legalMove = legalMovesChecker(currentPieces, selectedPiece, currentKing, validMove, currentRow, currentCol, desiredRow, desiredCol, -1);
-
+        currentlyChecking = false;
         try {
-            
+            System.out.println(lastPawnMoveWasTwoSquares);
             if(legalMove){
                 try {
                     Piece potentialDeadPiece = currentPieces[desiredRow][desiredCol];
@@ -495,7 +514,7 @@ public class Game{
                     lastPawnMoveWasTwoSquares = false;
                 }
                
-                
+                setJustMoved(desiredRow, desiredCol);
                 
                 
                 return true;
