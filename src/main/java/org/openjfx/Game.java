@@ -395,7 +395,6 @@ public class Game{
                         currentCol = j;
 
                         validMove = currentPieces[currentRow][currentCol].Move(currentPieces[currentRow][currentCol], currentPieces, currentRow, currentCol, desiredRow, desiredCol);
-                      
                         // je li mozete vjerovati da je ova validMove linija gore prije bila 30 linija jer sam ja glupan??
                         
                         if(currentPieces[i][j] instanceof King){ // rosado (castling) code
@@ -407,7 +406,13 @@ public class Game{
                                 if(legalMove){
                                     stupidForTheLastTime(currentKing);
                                     castleHandler(currentPieces, grid, currentKing, chessPieceLayer, currentRow, currentCol, desiredCol, rookCol);
-                                    playSoundEffect(castlePlayer);
+                                    
+                                    if(!checkSoundLogic(currentPieces)){
+                                        playSoundEffect(castlePlayer);
+                                    } else {
+                                        playSoundEffect(checkPlayer);
+                                    }
+                                    
                                     return true;
                                 }
                                 validMove = false;
@@ -428,7 +433,13 @@ public class Game{
    
                                 if(legalMove){
                                     promotionHandler(currentPieces, selectedPiece, grid,  chessPieceLayer, currentRow, currentCol, desiredRow, desiredCol);
-                                    playSoundEffect(promotePlayer);
+                                    
+                                    if(!checkSoundLogic(currentPieces)){
+                                        playSoundEffect(promotePlayer);
+                                    } else{
+                                        playSoundEffect(checkPlayer);
+                                    }
+                                    
                                     return true;
                                 }
 
@@ -618,7 +629,6 @@ public class Game{
 
                         recentMove(tile, grid);
 
-                        System.out.println(checkSoundLogic(currentPieces));
                         if(!checkSoundLogic(currentPieces)){
                             playSoundEffect(movePlayer);
                         }else{
@@ -691,7 +701,6 @@ public class Game{
                     Deselector(grid, currentPieces);
                    } else {
 
-                    System.out.println(checkSoundLogic(currentPieces));
                     if(!checkSoundLogic(currentPieces)){
                         playSoundEffect(capturePlayer);
                     }else{
@@ -742,9 +751,19 @@ public class Game{
             title.setFont(Font.font("Comic Sans MS", FontWeight.BOLD, 24));
             title.setFill(Color.BLACK);
             
-            Button playAgainButton = new Button("Play Again");
-            Button mainMenuButton = new Button("Main Menu"); 
-    
+            Button playAgainButton = new Button("Play Again");// b u t t o n
+            Button mainMenuButton = new Button("Main Menu"); // b u t t o n
+            playAgainButton.setStyle("-fx-background-color: #e6d7ff; -fx-text-fill: black;");// b u t t o n
+            mainMenuButton.setStyle("-fx-background-color: #ffe599; -fx-text-fill: black;");// b u t t o n
+            playAgainButton.setPrefWidth(300); // b u t t o n
+            playAgainButton.setPrefHeight(50);// b u t t o n
+            mainMenuButton.setPrefWidth(300);// b u t t o n
+            mainMenuButton.setPrefHeight(50);// b u t t o n
+            playAgainButton.setFont(Font.font("Comic Sans MS", FontWeight.BOLD, 28));// b u t t o n
+            mainMenuButton.setFont(Font.font("Comic Sans MS", FontWeight.BOLD, 28));// b u t t o n
+            playAgainButton.setCursor(javafx.scene.Cursor.HAND);// b u t t o n
+            mainMenuButton.setCursor(javafx.scene.Cursor.HAND);// b u t t o n
+
             VBox root = new VBox(20);
             root.setAlignment(Pos.CENTER);
             root.getChildren().addAll(title, playAgainButton, mainMenuButton);
