@@ -29,6 +29,10 @@ public class Game{
             if(piece instanceof Rook){
                 ((Rook) piece).setHasMoved();
             }
+
+            if(piece instanceof Pawn){
+                ((Pawn) piece).setFirstMove();
+            }
         } catch (Exception e) {
             
         }
@@ -179,9 +183,65 @@ public class Game{
         return false;
     }
 
+    public String broYouHaveBeenCheckmated (Piece[][] currentPieces){
+        String playerColor = (Chessboard.isWhite) ? "white" : "black";
+        String winnerColor = (Chessboard.isWhite) ? "black" : "white";
+        int legalMovesCounter= 0;
+        int stupidRookColumn = -1;
+        
+
+        Piece[][] futurePieces = new Piece[currentPieces.length][currentPieces.length];
+        for (int i = 0; i < currentPieces.length; i++) {
+            for (int j = 0; j < currentPieces.length; j++) {
+                futurePieces[i][j] = currentPieces[i][j];
+            }
+        }
+        King currentKing = currentKingLocator(futurePieces);
+
+        for (int currentRow = 0; currentRow < futurePieces.length; currentRow++) {  // ovaj spaget od koda gleda svaki piece i svaki moguci move svakog piecea (trenutnog playera)
+            for (int currentCol = 0; currentCol < futurePieces.length; currentCol++) { // te broji koliko ima legalnih poteza
+                try {
+                    Piece selectedPiece = futurePieces[currentRow][currentCol];
+                    
+                    if(selectedPiece.getColor().equals(playerColor)){
+                        for (int desiredRow = 0; desiredRow < futurePieces.length; desiredRow++) {
+                            for (int desiredCol = 0; desiredCol < futurePieces.length; desiredCol++) {
+                            Boolean validMove = selectedPiece.Move(selectedPiece, futurePieces, currentRow, currentCol, desiredRow, desiredCol);
+
+                            if(selectedPiece instanceof King){
+                                stupidRookColumn = ((King)selectedPiece).castleChecker((King)selectedPiece, futurePieces, currentRow, currentCol, currentRow, currentCol);
+                            }
+                            
+                            if(legalMovesChecker(futurePieces, selectedPiece, currentKing, validMove, currentRow, currentCol, desiredRow, desiredCol, stupidRookColumn)){
+                                legalMovesCounter++;
+                                // System.out.println(selectedPiece.getType() + " " + selectedPiece.getColor());
+                                // System.out.println(desiredRow + " " + desiredCol + "\n");
+                            }
+
+                            }   
+                        }
+                    }
+
+                } catch (Exception e) {
+                    continue;
+                }
+            }
+        }
+
+        if(legalMovesCounter == 0 && isKingInCheck(currentPieces, currentKing)){
+            return winnerColor + " has won by checkmate!";
+        } else if(legalMovesCounter == 0 && !isKingInCheck(currentPieces, currentKing)){
+            return "stalemate :(";
+        }
+        System.out.println(legalMovesCounter);
+
+        return null;
+    }
+
     public Boolean legalMovesChecker(Piece[][] currentPieces, Piece selectedPiece, King currentKing, Boolean validMove, int currentRow, int currentCol, int desiredRow, int desiredCol, int stupidRookColumn){
         Boolean isKingInCheck = isKingInCheck(currentPieces, currentKing);
         Boolean futureKingLegality = false;
+        Boolean occupiedSpace = false;
 
         Piece[][] futurePieces = new Piece[currentPieces.length][currentPieces.length];
         for (int i = 0; i < currentPieces.length; i++) {
@@ -246,7 +306,15 @@ public class Game{
         Boolean legalOtherMove = validMove && futureKingLegality && selectedPiece != currentKing;
         // the above line checks if a non king move is a valid way to get out of check
 
-        if(validMove && (legalKingMove || legalOtherMove)){
+        try {
+            String playerColor = (Chessboard.isWhite) ? "white" : "black";
+            occupiedSpace = (currentPieces[desiredRow][desiredCol].getColor().equals(playerColor)) ? true : false;
+        } catch (Exception e) {
+            occupiedSpace = false;
+        }
+        
+
+        if(validMove && (legalKingMove || legalOtherMove) && !occupiedSpace){
             //System.out.println("\nKralj: " + legalKingMove + "\nDrugi: " + legalOtherMove + "\nSah? " + isKingInCheck);
             return true;
         }
@@ -263,6 +331,8 @@ public class Game{
         Boolean legalMove = false;
         int currentRow = 0, currentCol = 0;
         King currentKing = currentKingLocator(currentPieces);
+
+        
         
         for (int i = 0; i < currentPieces.length; i++) {
             for (int j = 0; j < currentPieces[i].length; j++) {
@@ -488,8 +558,15 @@ public class Game{
                     
                     if(moveAction(currentPieces, grid, currentNode, chessPieceLayer)){
                         recentMove(tile, grid);
+
+                        //TODO: checkmate function
+                        String result = broYouHaveBeenCheckmated(currentPieces);
+                        if(result != null){
+                            System.out.println(result);
+                        }
                     }else{
                         // stavi da makne selected svugdje i makne boju
+
                         Deselector(grid, currentPieces);
                     }
 
@@ -548,7 +625,13 @@ public class Game{
 
                    if(!moveAction(currentPieces, grid, node, chessPieceLayer)){
                     Deselector(grid, currentPieces);
-                   };
+                   } else {
+                    //TODO: checkmate function
+                    String result = broYouHaveBeenCheckmated(currentPieces);
+                        if(result != null){
+                            System.out.println(result);
+                        }
+                   }
                    
                    pause(16);
                  }
