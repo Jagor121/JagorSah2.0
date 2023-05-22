@@ -1,6 +1,8 @@
 package org.openjfx;
 
 
+import java.io.IOException;
+
 import org.openjfx.pieces.King;
 import org.openjfx.pieces.Pawn;
 import org.openjfx.pieces.Piece;
@@ -11,14 +13,57 @@ import javafx.animation.PauseTransition;
 import javafx.scene.Group;
 import javafx.scene.Node;
 import javafx.scene.Scene;
+import javafx.scene.control.Button;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.GridPane;
+import javafx.scene.layout.VBox;
+import javafx.scene.media.Media;
+import javafx.scene.media.MediaPlayer;
 import javafx.scene.paint.Color;
+import javafx.scene.text.Font;
+import javafx.scene.text.FontWeight;
+import javafx.scene.text.Text;
 import javafx.stage.Stage;
 import javafx.util.Duration;
 
+import javafx.beans.InvalidationListener;
+import javafx.beans.Observable;
+import javafx.beans.property.BooleanProperty;
+import javafx.beans.property.SimpleStringProperty;
+import javafx.beans.property.StringProperty;
+import javafx.geometry.Pos;
+
+
+
 public class Game{
     public static Boolean lastPawnMoveWasTwoSquares = false;
+    public static Boolean currentlyChecking = false;
+    StringProperty result = new SimpleStringProperty(null);
+
+    Media moveSound = new Media(getClass().getResource("/res/sounds/moveself.mp3").toExternalForm());
+    Media captureSound = new Media(getClass().getResource("/res/sounds/capture.mp3").toExternalForm());
+    Media checkSound = new Media(getClass().getResource("/res/sounds/movecheck.mp3").toExternalForm());
+    Media castleSound = new Media(getClass().getResource("/res/sounds/castle.mp3").toExternalForm());
+    Media promoteSound = new Media(getClass().getResource("/res/sounds/promote.mp3").toExternalForm());
+    Media enpassantSound = new Media(getClass().getResource("/res/sounds/enpassant.mp3").toExternalForm());
+    Media checkmateSound = new Media(getClass().getResource("/res/sounds/checkmate.mp3").toExternalForm());
+
+    MediaPlayer movePlayer = new MediaPlayer(moveSound);
+    MediaPlayer capturePlayer = new MediaPlayer(captureSound);
+    MediaPlayer checkPlayer = new MediaPlayer(checkSound);
+    MediaPlayer castlePlayer = new MediaPlayer(castleSound);
+    MediaPlayer promotePlayer = new MediaPlayer(promoteSound);
+    MediaPlayer enpassantPlayer = new MediaPlayer(enpassantSound);
+    MediaPlayer checkmatePlayer = new MediaPlayer(checkmateSound);
+    
+    public void playSoundEffect(MediaPlayer mediaPlayer) {
+        mediaPlayer.play();
+        
+        // Wait for the sound effect to finish playing
+        mediaPlayer.setOnEndOfMedia(() -> {
+            mediaPlayer.stop();
+        });
+    }
     
     public void stupidForTheLastTime(Piece piece){
         try {
@@ -91,7 +136,7 @@ public class Game{
         currentPieces[desiredRow][desiredCol] = selectedPiece;
         currentPieces[currentRow][currentCol] = null;
         selectedPiece.setSelected(false);
-        Chessboard.isWhite = !Chessboard.isWhite;
+        Chessboard.isWhite.set(!Chessboard.isWhite.get()); 
         lastPawnMoveWasTwoSquares = false;
 
         System.out.println("isuse kriste en passant!!!!!!!!!");
@@ -113,7 +158,7 @@ public class Game{
         addPiece(chessPieceLayer, currentPieces[Row][desiredCol + destinationRookCol], Row, desiredCol + destinationRookCol, grid);
 
         selectedPiece.setSelected(false);
-        Chessboard.isWhite = !Chessboard.isWhite;
+        Chessboard.isWhite.set(!Chessboard.isWhite.get()); 
         lastPawnMoveWasTwoSquares = false;
         ((King)selectedPiece).setHasMoved();
 
@@ -141,13 +186,21 @@ public class Game{
         
         
         selectedPiece.setSelected(false);
-        Chessboard.isWhite = !Chessboard.isWhite;
+        Chessboard.isWhite.set(!Chessboard.isWhite.get()); 
         lastPawnMoveWasTwoSquares = false;
         System.out.println("PROMOCCIAJIAJIAJJAIIJI");
     }
 
+    public Boolean checkSoundLogic(Piece[][] currentPieces){
+        Boolean opponentChecked = isKingInCheck(currentPieces, currentKingLocator(currentPieces));
+        if(opponentChecked){
+            return true;
+        }
+        return false;
+    }
+
     public King currentKingLocator(Piece[][] currentPieces){
-        String playerColor = (Chessboard.isWhite) ? "white" : "black";
+        String playerColor = (Chessboard.isWhite.get()) ? "white" : "black";
 
         for (Piece[] pieces : currentPieces) {
             for (Piece piece : pieces) {
@@ -184,11 +237,11 @@ public class Game{
     }
 
     public String broYouHaveBeenCheckmated (Piece[][] currentPieces){
-        String playerColor = (Chessboard.isWhite) ? "white" : "black";
-        String winnerColor = (Chessboard.isWhite) ? "black" : "white";
+        String playerColor = (Chessboard.isWhite.get()) ? "white" : "black";
+        String winnerColor = (Chessboard.isWhite.get()) ? "black" : "white";
         int legalMovesCounter= 0;
         int stupidRookColumn = -1;
-        
+        currentlyChecking = true;
 
         Piece[][] futurePieces = new Piece[currentPieces.length][currentPieces.length];
         for (int i = 0; i < currentPieces.length; i++) {
@@ -233,7 +286,7 @@ public class Game{
         } else if(legalMovesCounter == 0 && !isKingInCheck(currentPieces, currentKing)){
             return "stalemate :(";
         }
-        System.out.println(legalMovesCounter);
+        //System.out.println(legalMovesCounter);
 
         return null;
     }
@@ -307,7 +360,7 @@ public class Game{
         // the above line checks if a non king move is a valid way to get out of check
 
         try {
-            String playerColor = (Chessboard.isWhite) ? "white" : "black";
+            String playerColor = (Chessboard.isWhite.get()) ? "white" : "black";
             occupiedSpace = (currentPieces[desiredRow][desiredCol].getColor().equals(playerColor)) ? true : false;
         } catch (Exception e) {
             occupiedSpace = false;
@@ -354,6 +407,7 @@ public class Game{
                                 if(legalMove){
                                     stupidForTheLastTime(currentKing);
                                     castleHandler(currentPieces, grid, currentKing, chessPieceLayer, currentRow, currentCol, desiredCol, rookCol);
+                                    playSoundEffect(castlePlayer);
                                     return true;
                                 }
                                 validMove = false;
@@ -374,6 +428,7 @@ public class Game{
    
                                 if(legalMove){
                                     promotionHandler(currentPieces, selectedPiece, grid,  chessPieceLayer, currentRow, currentCol, desiredRow, desiredCol);
+                                    playSoundEffect(promotePlayer);
                                     return true;
                                 }
 
@@ -385,13 +440,11 @@ public class Game{
 
                                 if(legalMove){
                                  enPassantHandler(currentPieces, grid, (Piece) selectedPiece, chessPieceLayer, currentRow, currentCol, desiredRow, desiredCol, enPssntRow);
+                                 playSoundEffect(enpassantPlayer);
                                  return true;
                                 } 
                              }
-                        } else{
-                            lastPawnMoveWasTwoSquares = false;  // iskreno nisam siguran zasto ovo bas mora biti ovdje ali bez ovoga en passant ne radi
-                        }
-                        
+                        } 
                        
                         
                     }
@@ -424,8 +477,14 @@ public class Game{
                 currentPieces[currentRow][currentCol] = null;
         
                 selectedPiece.setSelected(false);
-                Chessboard.isWhite = !Chessboard.isWhite;
+                Chessboard.isWhite.set(!Chessboard.isWhite.get()); 
                 stupidForTheLastTime(selectedPiece);
+
+                if(!(selectedPiece instanceof Pawn)){
+                    lastPawnMoveWasTwoSquares = false;
+                }
+               
+                
                 
                 
                 return true;
@@ -528,8 +587,6 @@ public class Game{
         Boolean colorType = color.equals(Color.web(Chessboard.tileColor1));
 
         recentMoveShowReset(grid);
-        
-
         colorChanger(colorType, tile); // metoda za mijenjanje individualnog tilea
     }
 
@@ -549,21 +606,27 @@ public class Game{
 
     }
 
-    public void movementHandler(Piece[][] currentPieces, Boolean isWhite, GridPane grid, Group chessPieceLayer){
+    public void movementHandler(Piece[][] currentPieces, BooleanProperty isWhite, GridPane grid, Group chessPieceLayer){
         for (Node node : grid.getChildren()) {
             node.setOnMouseClicked(event2 -> {
                 if(!thisIsReallyStupid(currentPieces)){ // gleda dal ima selektirani piece
                     Node currentNode = (Node) event2.getSource();
                     Tile tile = (Tile) event2.getSource();
+                    currentlyChecking = false;
                     
                     if(moveAction(currentPieces, grid, currentNode, chessPieceLayer)){
+
                         recentMove(tile, grid);
 
-                        //TODO: checkmate function
-                        String result = broYouHaveBeenCheckmated(currentPieces);
-                        if(result != null){
-                            System.out.println(result);
+                        System.out.println(checkSoundLogic(currentPieces));
+                        if(!checkSoundLogic(currentPieces)){
+                            playSoundEffect(movePlayer);
+                        }else{
+                            playSoundEffect(checkPlayer);
                         }
+
+                        result.set(broYouHaveBeenCheckmated(currentPieces));
+     
                     }else{
                         // stavi da makne selected svugdje i makne boju
 
@@ -592,7 +655,7 @@ public class Game{
     public void pieceEventListenerLogic(Piece piece, Piece[][] currentPieces, GridPane grid, Group chessPieceLayer) {
         try {
             piece.getImg().setOnMouseClicked(event1 -> {
-                Boolean correctColor = (Chessboard.isWhite && piece.getColor().equals("white")) || (!Chessboard.isWhite && !piece.getColor().equals("white"));
+                Boolean correctColor = (Chessboard.isWhite.get() && piece.getColor().equals("white")) || (!Chessboard.isWhite.get() && !piece.getColor().equals("white"));
                 if (!piece.getSelected() && thisIsReallyStupid(currentPieces) && correctColor) { // Check if a chess piece has not been selected yet
                     ImageView selectedPieceIMG = (ImageView) event1.getSource(); // Get the clicked chess piece
        
@@ -622,15 +685,21 @@ public class Game{
 
                 if (!thisIsReallyStupid(currentPieces) && !correctColor) { // jedenje
                     Node node = (Node) event1.getSource();
+                    currentlyChecking = false;
 
                    if(!moveAction(currentPieces, grid, node, chessPieceLayer)){
                     Deselector(grid, currentPieces);
                    } else {
-                    //TODO: checkmate function
-                    String result = broYouHaveBeenCheckmated(currentPieces);
-                        if(result != null){
-                            System.out.println(result);
-                        }
+
+                    System.out.println(checkSoundLogic(currentPieces));
+                    if(!checkSoundLogic(currentPieces)){
+                        playSoundEffect(capturePlayer);
+                    }else{
+                        playSoundEffect(checkPlayer);
+                    }
+                    
+                    result.set(broYouHaveBeenCheckmated(currentPieces)); 
+      
                    }
                    
                    pause(16);
@@ -638,7 +707,7 @@ public class Game{
             });
 
             piece.getImg().setOnMouseEntered(event -> {
-                Boolean correctColor = (Chessboard.isWhite && piece.getColor().equals("white")) || (!Chessboard.isWhite && !piece.getColor().equals("white"));
+                Boolean correctColor = (Chessboard.isWhite.get() && piece.getColor().equals("white")) || (!Chessboard.isWhite.get() && !piece.getColor().equals("white"));
                 // Change cursor to hand cursor when mouse is over the ImageView
                 if(correctColor){
                     piece.getImg().setCursor(javafx.scene.Cursor.HAND);
@@ -646,7 +715,7 @@ public class Game{
             });
     
             piece.getImg().setOnMouseExited(event -> {
-                Boolean correctColor = (Chessboard.isWhite && piece.getColor().equals("white")) || (!Chessboard.isWhite && !piece.getColor().equals("white"));
+                Boolean correctColor = (Chessboard.isWhite.get() && piece.getColor().equals("white")) || (!Chessboard.isWhite.get() && !piece.getColor().equals("white"));
                 // Reset cursor to default when mouse exits the ImageView
                 if (correctColor) {
                     piece.getImg().setCursor(javafx.scene.Cursor.DEFAULT);
@@ -660,8 +729,64 @@ public class Game{
     }
 
     public void Logic(GridPane grid, Group chessPiecesLayer, Piece[][] currentPieces, Stage primaryStage, Scene scene) {
-
+        
         movementHandler(currentPieces, Chessboard.isWhite, grid, chessPiecesLayer); // initializes piece movement/selection capabilites
+
+
+
+         // Create an InvalidationListener
+    InvalidationListener listener = new InvalidationListener() {
+        @Override
+        public void invalidated(Observable observable) {
+            Text title = new Text(result.get());
+            title.setFont(Font.font("Comic Sans MS", FontWeight.BOLD, 24));
+            title.setFill(Color.BLACK);
+            
+            Button playAgainButton = new Button("Play Again");
+            Button mainMenuButton = new Button("Main Menu"); 
+    
+            VBox root = new VBox(20);
+            root.setAlignment(Pos.CENTER);
+            root.getChildren().addAll(title, playAgainButton, mainMenuButton);
+    
+            Scene scene1 = new Scene(root, 400, 300);
+            Stage secondaryStage = new Stage();
+
+            playSoundEffect(checkmatePlayer);
+            secondaryStage.setTitle("Game Over");
+            secondaryStage.setScene(scene1);
+            secondaryStage.show();
+            
+            playAgainButton.setOnAction(event -> {
+               
+                secondaryStage.close();
+
+                Chessboard chessboard = new Chessboard();
+                Chessboard.isWhite.set(true);
+                try {
+                    chessboard.start(primaryStage);
+                } catch (Exception e) {
+                    // TODO: handle exception
+                }
+            });
+    
+            mainMenuButton.setOnAction(event -> {
+                
+                secondaryStage.close();
+                App app = new App();
+                try {
+                    Chessboard.isWhite.set(true);
+                    app.start(primaryStage);
+                } catch (IOException e) {
+                    // TODO Auto-generated catch block
+                    e.printStackTrace();
+                }
+            });
+
+        }
+    };
+
+        result.addListener(listener);
 
                          // ovaj while true je ovdje jer sam htio imat eventlistener za 2d array ali to je propalo u vodu, duga prica ovo treba biti tu da mogu
         //while (true) {  // promijeniti scenu kada je checkmate

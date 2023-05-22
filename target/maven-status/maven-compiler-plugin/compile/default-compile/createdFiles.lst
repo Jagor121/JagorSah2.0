@@ -1,0 +1,15 @@
+org\openjfx\Game.class
+org\openjfx\Tile.class
+org\openjfx\PrimaryController.class
+org\openjfx\pieces\Bishop.class
+org\openjfx\pieces\King.class
+org\openjfx\pieces\Rook.class
+org\openjfx\Chessboard.class
+org\openjfx\pieces\Queen.class
+module-info.class
+org\openjfx\pieces\Knight.class
+org\openjfx\Game$1.class
+org\openjfx\SecondaryController.class
+org\openjfx\pieces\Pawn.class
+org\openjfx\pieces\Piece.class
+org\openjfx\App.class

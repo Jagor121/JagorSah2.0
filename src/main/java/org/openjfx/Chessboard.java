@@ -3,6 +3,8 @@ package org.openjfx;
 import org.openjfx.pieces.*;
 
 import javafx.application.Application;
+import javafx.beans.property.BooleanProperty;
+import javafx.beans.property.SimpleBooleanProperty;
 import javafx.scene.Group;
 import javafx.scene.Scene;
 import javafx.scene.layout.GridPane;
@@ -10,16 +12,17 @@ import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 
 public class Chessboard extends Application {
-    static boolean isWhite = true; // determines if you're playing as white or black/orientation of the board
-    static boolean tileColor = isWhite; //determines colors of the tiles
+    static BooleanProperty isWhite = new SimpleBooleanProperty(true);// determines if you're playing as white or black/orientation of the board
+    // static boolean isWhite = true; 
+    static boolean tileColor = isWhite.get(); //determines colors of the tiles
     static int size = 8;
     static String tileColor1 = "#f0d9b5";
     static String tileColor2 = "#b58863";
     static String tileColor1Ac = "#f7ec59";
     static String tileColor2Ac = "#dac331";
 
-     public void pieceSetup(int size, GridPane grid, boolean isWhite, Group chessPieceLayer, Piece[][] currentPieces){
-        pieceSetupParser(isWhite, currentPieces);
+     public void pieceSetup(int size, GridPane grid,  Group chessPieceLayer, Piece[][] currentPieces){
+        pieceSetupParser(currentPieces);
     
          for (int row = 0; row < size; row++) {
             for (int col = 0; col < size; col++) {
@@ -35,6 +38,7 @@ public class Chessboard extends Application {
             }
         }
      }
+
      public static void rotate180(Piece[][] matrix) { // stavi u game.java kasnije molim te tako da rotira board i pieces
         int rows = matrix.length;
         int cols = matrix[0].length;
@@ -66,7 +70,7 @@ public class Chessboard extends Application {
         }
     }
 
-      public void pieceSetupParser(boolean isWhite, Piece[][] currentPieces){
+      public void pieceSetupParser(Piece[][] currentPieces){
         // originalno sam imao cijelu kul ideju raditi ovo sa json-om ali to je apsolutno propalo i unistilo moje mentalno stanje pa evo nas sad ovdje
             currentPieces[0][0] = new Rook("blackrook.png","black");
             currentPieces[0][1] = new Knight("blackknight.png","black");
@@ -94,10 +98,9 @@ public class Chessboard extends Application {
              currentPieces[6][i] = new Pawn("whitepawn.png","white");
             }
 
-            if(!isWhite){
-                //rotiraj currentPieces
-                rotate180(currentPieces);
-            }
+           if(!isWhite.get()){
+            rotate180(currentPieces);
+           }
 
       }
 
@@ -131,7 +134,7 @@ public class Chessboard extends Application {
 
         tileSetup(grid, size, tileColor); // Create rectangles for each cell on the chessboard
         grid.getChildren().add(chessPiecesLayer); // creates a new "layer for the pieces"... i think??... makes each grid tile part of the group chessPiecesLayer?
-        pieceSetup(size, grid,isWhite, chessPiecesLayer, currentPieces);
+        pieceSetup(size, grid,chessPiecesLayer, currentPieces);
         
 
 
@@ -144,7 +147,18 @@ public class Chessboard extends Application {
         Game game = new Game();
         game.Logic(grid, chessPiecesLayer, currentPieces, primaryStage, scene); // bog zna zasto ovo ovako radim ali tako sam odlucio
 
+        // isWhite.addListener((observable, oldValue, newValue) -> {
+            
+        //      chessPiecesLayer.getChildren().clear();
+        //      grid.getChildren().clear();
+        //      tileSetup(grid, size, tileColor); // Create rectangles for each cell on the chessboard
+        //      pieceSetup(size, grid,chessPiecesLayer, currentPieces);
 
+        //      game.movementHandler(currentPieces, isWhite, grid, chessPiecesLayer);
+        // });
+
+
+    
         // for (int i = 0; i < currentPieces.length; i++) {
         //     for (int j = 0; j < currentPieces.length; j++) {
         //         System.out.print(currentPieces[i][j]);
@@ -154,6 +168,9 @@ public class Chessboard extends Application {
 
     }
 
+    public static Boolean getPlayer(){
+        return isWhite.get();
+    }
     public static void main(String[] args) {
         launch(args);
     }

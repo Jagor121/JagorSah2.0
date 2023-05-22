@@ -1,5 +1,6 @@
 package org.openjfx.pieces;
 
+import org.openjfx.Chessboard;
 import org.openjfx.Game;
 
 public class Pawn extends Piece {
@@ -20,8 +21,11 @@ public class Pawn extends Piece {
                 if (currentCol != desiredCol) {
                     // Check if the pawn is capturing a piece diagonally
                     if (Math.abs(currentCol - desiredCol) == 1 && desiredRow == currentRow + direction && currentPieces[desiredRow][desiredCol] != null) {
-           
-                        Game.lastPawnMoveWasTwoSquares = false;
+                        
+                        if(!Game.currentlyChecking){
+                            Game.lastPawnMoveWasTwoSquares = false;
+                        }
+                        
                         return true;
                     } else {
                         return false;
@@ -30,12 +34,16 @@ public class Pawn extends Piece {
                     // Check if the pawn is moving one or two squares forward
                     if (desiredRow == currentRow + direction && currentPieces[desiredRow][desiredCol] == null) {
                         
-                        Game.lastPawnMoveWasTwoSquares = false;
+                        if(!Game.currentlyChecking){
+                            Game.lastPawnMoveWasTwoSquares = false;
+                        }
                         return true;
                     } else if (desiredRow == currentRow + 2 * direction && ((Pawn) selectedPiece).getFirstMove() && currentPieces[desiredRow][desiredCol] == null) {
                         // Check if the pawn is making its first move and moving two squares forward
 
-                        Game.lastPawnMoveWasTwoSquares = true;
+                        if(!Game.currentlyChecking){
+                            Game.lastPawnMoveWasTwoSquares = true;
+                        }
                         return true;
                     } 
 
