@@ -804,7 +804,6 @@ public class Game{
                 try {
                     chessboard.start(primaryStage);
                 } catch (Exception e) {
-                    // TODO: handle exception
                 }
             });
     
@@ -816,7 +815,6 @@ public class Game{
                     Chessboard.isWhite.set(true);
                     app.start(primaryStage);
                 } catch (IOException e) {
-                    // TODO Auto-generated catch block
                     e.printStackTrace();
                 }
             });

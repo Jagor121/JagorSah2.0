@@ -1,6 +1,5 @@
 package org.openjfx.pieces;
 
-import org.openjfx.Chessboard;
 import org.openjfx.Game;
 
 public class Pawn extends Piece {
