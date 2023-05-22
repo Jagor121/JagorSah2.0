@@ -421,7 +421,7 @@ public class Game{
                                     stupidForTheLastTime(currentKing);
                                     castleHandler(currentPieces, grid, currentKing, chessPieceLayer, currentRow, currentCol, desiredCol, rookCol);
                                     setJustMoved(desiredRow, desiredCol);
-                                    
+
                                     if(!checkSoundLogic(currentPieces)){
                                         playSoundEffect(castlePlayer);
                                     } else {
@@ -825,11 +825,6 @@ public class Game{
     };
 
         result.addListener(listener);
-
-                         // ovaj while true je ovdje jer sam htio imat eventlistener za 2d array ali to je propalo u vodu, duga prica ovo treba biti tu da mogu
-        //while (true) {  // promijeniti scenu kada je checkmate
-            
-        //}
 
     }
 }
