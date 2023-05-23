@@ -29,7 +29,7 @@ public class App extends Application {
 
     @Override
     public void start(Stage primaryStage) throws IOException {
-        Text title = new Text("Jagor sah 2.0");
+        Text title = new Text("JagorŠah 2.0");
         title.setFont(Font.font("Comic Sans MS", FontWeight.BOLD, 48));
         title.setFill(Color.WHITE);
         

@@ -140,7 +140,7 @@ public class Chessboard extends Application {
 
         Scene scene = new Scene(grid, 480, 480); // Set the chessboard scene size
         primaryStage.setScene(scene);
-        
+        primaryStage.setAlwaysOnTop(true);
         primaryStage.setTitle("Chessboard");
         primaryStage.show();
         
