@@ -128,7 +128,6 @@ public class Chessboard extends Application {
     public void start(Stage primaryStage) throws Exception {
         GridPane grid = new GridPane();
         
-        
         Group chessPiecesLayer = new Group();
         Piece[][] currentPieces = new Piece[8][8]; // piece array logika
 
@@ -140,7 +139,7 @@ public class Chessboard extends Application {
 
         Scene scene = new Scene(grid, 480, 480); // Set the chessboard scene size
         primaryStage.setScene(scene);
-        primaryStage.setAlwaysOnTop(true);
+        //primaryStage.setAlwaysOnTop(true);
         primaryStage.setTitle("Chessboard");
         primaryStage.show();
         

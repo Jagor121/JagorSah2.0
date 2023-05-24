@@ -17,8 +17,8 @@ public class Piece {
          
         Image image = new Image(molimte + pathToImg);
         imageView.setImage(image);
-        imageView.setFitWidth(60); // Example width
-        imageView.setFitHeight(60); // Example height
+        imageView.setFitWidth(60); 
+        imageView.setFitHeight(60); 
         imageView.setPickOnBounds(true);
         
         this.color = color;

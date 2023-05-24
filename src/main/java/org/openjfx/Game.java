@@ -436,7 +436,7 @@ public class Game{
                     
                          if (currentPieces[i][j] instanceof Pawn) {   // boze pomozi pawn stvarima
                              Pawn selectedPiece = (Pawn) currentPieces[currentRow][currentCol];
-                             int enPssntRow = selectedPiece.enPassantChecker(selectedPiece,  currentPieces, currentRow, currentCol,desiredRow, desiredCol);
+                             
 
                              if(selectedPiece.Hamburger(selectedPiece, desiredRow) && validMove){ // promocija pijuna
                                 String isWhite = (selectedPiece.getColor().equals("white")) ? "white" : "black";  // odreduje vrstu kraljice
@@ -462,6 +462,7 @@ public class Game{
 
                              }
 
+                             int enPssntRow = selectedPiece.enPassantChecker(selectedPiece,  currentPieces, currentRow, currentCol,desiredRow, desiredCol);
                              if(enPssntRow != -1){ //en passant
                                 validMove = true;
                                 legalMove = legalMovesChecker(currentPieces, currentPieces[currentRow][currentCol], currentKing, validMove, currentRow, currentCol, desiredRow, desiredCol, -1);
@@ -604,7 +605,7 @@ public class Game{
                     tile1.setFill(Color.web(Chessboard.tileColor2)); 
                 }
                 count++;
-                tileColor = !tileColor; // Toggle the flag for the next cell 
+                tileColor = !tileColor; 
                 if(count % 8 == 0){
                     tileColor = !tileColor;
                 }
@@ -686,8 +687,6 @@ public class Game{
             piece.getImg().setOnMouseClicked(event1 -> {
                 Boolean correctColor = (Chessboard.isWhite.get() && piece.getColor().equals("white")) || (!Chessboard.isWhite.get() && !piece.getColor().equals("white"));
                 if (!piece.getSelected() && thisIsReallyStupid(currentPieces) && correctColor) { // Check if a chess piece has not been selected yet
-                    ImageView selectedPieceIMG = (ImageView) event1.getSource(); // Get the clicked chess piece
-       
 
                     piece.setSelected(true); // Set the selected flag to true
                     Tile tile = currentPieceTileLocator(grid, currentPieces);

@@ -72,7 +72,7 @@ public class App extends Application {
 
         rulesButton.setOnAction(event -> {
             HostServices hostServices = getHostServices();
-            hostServices.showDocument("https://en.wikipedia.org/wiki/Rules_of_chess"); // Replace with your link 
+            hostServices.showDocument("https://en.wikipedia.org/wiki/Rules_of_chess"); 
         });
 
 
