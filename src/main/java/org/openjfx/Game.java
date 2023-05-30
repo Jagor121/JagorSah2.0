@@ -227,6 +227,8 @@ public class Game{
         return null;
     }
 
+    
+
     public Boolean isKingInCheck(Piece[][] currentPieces, King currentKing){
       
         int currentRow = 0, currentCol = 0;
@@ -306,6 +308,7 @@ public class Game{
     }
 
     public Boolean legalMovesChecker(Piece[][] currentPieces, Piece selectedPiece, King currentKing, Boolean validMove, int currentRow, int currentCol, int desiredRow, int desiredCol, int stupidRookColumn){
+    
         Boolean isKingInCheck = isKingInCheck(currentPieces, currentKing);
         Boolean futureKingLegality = false;
         Boolean occupiedSpace = false;
@@ -329,14 +332,14 @@ public class Game{
             futurePieces[Row][currentCol] = null; // mice og kralja
 
             Boolean castlestep = (isKingInCheck && !(currentKing.checkChecker(futurePieces, Row, step))) || (!isKingInCheck && !(currentKing.checkChecker(futurePieces, Row, step)));
-
+            System.out.println("step: "+castlestep);
             futurePieces[Row][desiredCol] = selectedPiece; // stavlja kralj na zeljeno mjesto
             
             futurePieces[Row][step] = futurePieces[Row][stupidRookColumn]; // stavlja rook pored kralja
             futurePieces[Row][stupidRookColumn] = null; // mice og rook  
             
-            futureKingLegality = castlestep && ((isKingInCheck && !(currentKing.checkChecker(futurePieces, Row, step))) || (!isKingInCheck && !(currentKing.checkChecker(futurePieces, Row, step))));
-            
+            futureKingLegality = castlestep && ((isKingInCheck && !(currentKing.checkChecker(futurePieces, Row, desiredCol))) || (!isKingInCheck && !(currentKing.checkChecker(futurePieces, Row, desiredCol))));
+            System.out.println("king:" + futureKingLegality);
 
         }
         
