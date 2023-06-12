@@ -332,14 +332,13 @@ public class Game{
             futurePieces[Row][currentCol] = null; // mice og kralja
 
             Boolean castlestep = (isKingInCheck && !(currentKing.checkChecker(futurePieces, Row, step))) || (!isKingInCheck && !(currentKing.checkChecker(futurePieces, Row, step)));
-            System.out.println("step: "+castlestep);
             futurePieces[Row][desiredCol] = selectedPiece; // stavlja kralj na zeljeno mjesto
             
             futurePieces[Row][step] = futurePieces[Row][stupidRookColumn]; // stavlja rook pored kralja
             futurePieces[Row][stupidRookColumn] = null; // mice og rook  
             
             futureKingLegality = castlestep && ((isKingInCheck && !(currentKing.checkChecker(futurePieces, Row, desiredCol))) || (!isKingInCheck && !(currentKing.checkChecker(futurePieces, Row, desiredCol))));
-            System.out.println("king:" + futureKingLegality);
+          
 
         }
         
@@ -492,7 +491,7 @@ public class Game{
         legalMove = legalMovesChecker(currentPieces, selectedPiece, currentKing, validMove, currentRow, currentCol, desiredRow, desiredCol, -1);
         currentlyChecking = false;
         try {
-            System.out.println(lastPawnMoveWasTwoSquares);
+            //System.out.println(lastPawnMoveWasTwoSquares);
             if(legalMove){
                 try {
                     Piece potentialDeadPiece = currentPieces[desiredRow][desiredCol];
